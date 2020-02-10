@@ -1,10 +1,9 @@
 """
-Ver 0.2: Buttons, conversational handlers, and user states 
+Ver 0.3: Buttons, conversational handlers, and user states 
 """
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
-from leaveNow import alarmEatin, alarmTakeAway
 import os
 import logging
 import datetime
@@ -24,6 +23,10 @@ logging.basicConfig(
     level = logging.INFO)
 logger = logging.getLogger(__name__)
 
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
+
 # A function to build menu of buttons for every occasion 
 def build_menu(buttons, n_cols, header_buttons, footer_buttons):
     menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
@@ -32,10 +35,6 @@ def build_menu(buttons, n_cols, header_buttons, footer_buttons):
     if footer_buttons:
         menu.append(footer_buttons)
     return menu
-
-def error(update, context):
-    """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 ###########################################
 #EMOJIS
@@ -46,7 +45,7 @@ CAMERA = u"\U0001F4F8"
 ###########################################
 
 # Set up states in the conversation
-(AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY) = range(4)
+(AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY, CONFIRM_EXIT) = range(5)
 
 
 ## TODO INITIATE POSTGRESQL HERE 
@@ -225,6 +224,23 @@ def send_final(update, context):
 
     return ConversationHandler.END
 
+# When user leaves dining hall
+def exit(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
+    log_text = "User " + str(user.id) + " has now confirmed exit from DH."
+    logger.info(log_text)
+
+    reply_text = "Thank you for leaving on time! Do remind your friends to do the same as well!"
+
+    context.bot.editMessageText(text = reply_text,
+                                chat_id = chatid,
+                                message_id=query.message.message_id,
+                                parse_mode=ParseMode.HTML)
+
+    return ConversationHandler.END
 
 # Feature 3: Reminder function to take temperature
 def callback_reminder(context):
@@ -238,6 +254,35 @@ def callback_reminder(context):
                     FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
 
     context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
+
+def alarmEatin(update, context):
+    EATIN_MESSAGE = "EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW."
+
+    query = update.callback_query
+    job = context.job
+    chatid = update.message.chat_id
+    button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data = 'EXIT')]
+    menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
+    
+    context.bot.send_message(text = EATIN_MESSAGE,
+                            chat_id = chatid,
+                            reply_markup = InlineKeyboardMarkup(menu))
+
+    return CONFIRM_EXIT
+
+def alarmTakeAway(update, context):
+    TAKEAWAY_MESSAGE = "EH HELLO! YOU HAVE BEEN IN THE DINING HALL FOR 10 MINUTES. YOU NEED 10 MINUTES TO TAKEAWAY MEH? PLEASE LEAVE NOW."
+
+    job = context.job
+    chatid = update.message.chat_id
+    button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = 'EXIT')]
+    menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
+
+    context.bot.send_message(text = TAKEAWAY_MESSAGE,
+                            chat_id = chatid,
+                            reply_markup = InlineKeyboardMarkup(menu))
+
+    return CONFIRM_EXIT
 
 
 # Feature 4: Send DH menu (pdf only)
@@ -307,6 +352,7 @@ def main():
                 CONFIRM_ENTRY: [CallbackQueryHandler(callback = send_final, pattern = '^(CONFIRM_ENTRY)$'),
                                 CallbackQueryHandler(callback = start, pattern = '^(CANCEL)$')],
                 
+                CONFIRM_EXIT: [CallbackQueryHandler(callback = exit, pattern = '^(EXIT)$')],
                 },
             fallbacks = [CommandHandler('cancel', cancel)],
             allow_reentry = True
