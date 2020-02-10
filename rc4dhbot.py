@@ -39,6 +39,9 @@ def error(update, context):
 
 ###########################################
 
+# Set up states in the conversation
+(AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY) = range(4)
+
 # Set up INFO_STORE to store user data 
 # TODO Change to FireBase
 INFO_STORE = {}
@@ -173,7 +176,8 @@ def send_final(update, context):
     context.bot.send_message(text = reply_text,
                             chat_id = chatid,
                             parse_mode = ParseMode.HTML) # no buttons for final text sent to the user 
-    return 
+                            
+    return ConversationHandler.END
 
 
 
