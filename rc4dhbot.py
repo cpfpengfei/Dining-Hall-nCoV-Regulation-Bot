@@ -254,26 +254,32 @@ def callback_reminder(context):
 
     context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
-def alarmEatin(context):
+def alarmEatin(update, context):
     EATIN_MESSAGE = "EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW."
 
     job = context.job
+    chatid = update.message.chat_id
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data = 'EXIT')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
     
-    context.bot.send_message(job.context, text = EATIN_MESSAGE,
+    context.bot.send_message(job.context,
+                            text = EATIN_MESSAGE,
+                            chat_id = chatid,
                             reply_markup = InlineKeyboardMarkup(menu))
 
     return CONFIRM_EXIT
 
-def alarmTakeAway(context):
+def alarmTakeAway(update, context):
     TAKEAWAY_MESSAGE = "EH HELLO! YOU HAVE BEEN IN THE DINING HALL FOR 10 MINUTES. YOU NEED 10 MINUTES TO TAKEAWAY MEH? PLEASE LEAVE NOW."
 
     job = context.job
+    chatid = update.message.chat_id
     button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = 'EXIT')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
 
-    context.bot.send_message(job.context, text = TAKEAWAY_MESSAGE,
+    context.bot.send_message(job.context, 
+                            text = TAKEAWAY_MESSAGE,
+                            chat_id = chatid,
                             reply_markup = InlineKeyboardMarkup(menu))
 
     return CONFIRM_EXIT
