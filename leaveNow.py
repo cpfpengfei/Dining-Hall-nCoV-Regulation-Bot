@@ -17,6 +17,14 @@ def alarmTakeAway(context):
     job = context.job
     context.bot.send_message(job.context, text = TAKEAWAY_MESSAGE)
 
+# ████████╗██╗███╗   ███╗███████╗██████╗ 
+# ╚══██╔══╝██║████╗ ████║██╔════╝██╔══██╗
+#    ██║   ██║██╔████╔██║█████╗  ██████╔╝
+#    ██║   ██║██║╚██╔╝██║██╔══╝  ██╔══██╗
+#    ██║   ██║██║ ╚═╝ ██║███████╗██║  ██║
+#    ╚═╝   ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝
+#                                        
+
 def setEatinTimer(update, context):
     chat_id = update.message.chat_id
     new_job = context.job_queue.run_once(alarmEatin, 1200, context = chat_id)
