@@ -1,10 +1,9 @@
 """
-Ver 0.2: Buttons, conversational handlers, and user states 
+Ver 0.3: Buttons, conversational handlers, and user states 
 """
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
-from leaveNow import alarmEatin, alarmTakeAway, build_menu
 import os
 import logging
 import datetime
@@ -26,6 +25,15 @@ logger = logging.getLogger(__name__)
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
+
+# A function to build menu of buttons for every occasion 
+def build_menu(buttons, n_cols, header_buttons, footer_buttons):
+    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
+    if header_buttons:
+        menu.insert(0, header_buttons)
+    if footer_buttons:
+        menu.append(footer_buttons)
+    return menu
 
 ###########################################
 #EMOJIS
@@ -245,6 +253,30 @@ def callback_reminder(context):
                     FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
 
     context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
+
+def alarmEatin(context):
+    EATIN_MESSAGE = "EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW."
+
+    job = context.job
+    button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data = 'EXIT')]
+    menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
+    
+    context.bot.send_message(job.context, text = EATIN_MESSAGE,
+                            reply_markup = InlineKeyboardMarkup(menu))
+
+    return CONFIRM_EXIT
+
+def alarmTakeAway(context):
+    TAKEAWAY_MESSAGE = "EH HELLO! YOU HAVE BEEN IN THE DINING HALL FOR 10 MINUTES. YOU NEED 10 MINUTES TO TAKEAWAY MEH? PLEASE LEAVE NOW."
+
+    job = context.job
+    button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = 'EXIT')]
+    menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
+
+    context.bot.send_message(job.context, text = TAKEAWAY_MESSAGE,
+                            reply_markup = InlineKeyboardMarkup(menu))
+
+    return CONFIRM_EXIT
 
 
 def cancel(update, context):
