@@ -1,9 +1,9 @@
 import datetime
 
-def run_morning(context):
+def run_morning(update, context):
     context.job_queue.run_daily(callback_reminder, time=datetime.time(8, 00, 00))
 
-def run_night(context):
+def run_night(update, context):
     context.job_queue.run_daily(callback_reminder, time=datetime.time(18, 45, 00))
 
 def callback_reminder(bot, user):
