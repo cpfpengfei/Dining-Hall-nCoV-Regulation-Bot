@@ -47,10 +47,12 @@ SICK_MASK = u"\uE40C"
 # Set up states in the conversation
 (AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY) = range(4)
 
-# Set up INFO_STORE to store user data 
-# TODO Change to FireBase
+# Set up INFO_STORE to store state data temporarily
 INFO_STORE = {}
-POLL_NUMBER = 0
+
+## INITIATE POSTGRESQL HERE 
+
+
 
 HELP_TEXT = """\n<b>Dining Hall Crowd Regulation</b>
 
@@ -67,8 +69,8 @@ Buttons and what they mean:
 
 def start(update, context):
     reply_text = "Hello!\n\n"
-
-    # get STATUS_TEXT by drawing live data from firebase 
+  
+    # TODO get STATUS_TEXT by drawing live data from POSTGRESQL 
 
     STATUS_TEXT = "<b>Current Status:</b>\n\nNumber of people queueing up for food: X\n\nNumber of people eating in the dining hall: Y"
     reply_text += STATUS_TEXT
@@ -167,13 +169,19 @@ def indicate_intention(update, context):
     pressed = str(query.data)
     if pressed == 'INTENT_0':
         intention = "TAKEAWAY"
+        duration = "7"
     if pressed == 'INTENT_1':
-        intention = "DINEIN"
+        intention = "DINE IN"
+        duration = "20"
 
-    log_text = "User " + str(user.id) + " has indicated to {}.".format(intention)
+    # initiate user for info store temp storage
+    INFO_STORE[user.id] = {}
+    INFO_STORE[user.id]['Duration'] 
+
+    log_text = "User " + str(user.id) + " has indicated to {}. Duration is also initiated in Info Store.".format(intention)
     logger.info(log_text)
 
-    reply_text = "Okay! Got it, you wish to {} in the Dining Hall now, can I confirm?".format(intention)
+    reply_text = "Okay! Got it, you wish to {} in the Dining Ha ll now, can I confirm?".format(intention)
     reply_text += "\n\nOr did you mis-press? You can cancel the whole process to go back to the start."
 
     button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data = 'CONFIRM_ENTRY'),
@@ -204,10 +212,14 @@ def send_final(update, context):
                                 message_id=query.message.message_id,
                                 parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user 
 
+    # TODO POSTGRESQL: GET DATA HERE AND UPDATE DATABASE
+    USERID = str(user.id)
+    DURATION = INFO_STORE[user.id]['Duration'] 
+
     return ConversationHandler.END
 
-# reminder function
 
+# reminder function to take temperature
 def callback_reminder(context):
     REMINDER_TEXT = WHALE + WHALE + WHALE + "DAILY TEMPERATURE TAKING" + WHALE + WHALE + WHALE + \
                     "\n\nHello! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n" + \
@@ -216,6 +228,7 @@ def callback_reminder(context):
                     "Please rest well and take care during this period!!" + SICK_MASK
 
     context.bot.send_message(chat_id=context.job.context, text=REMINDER_TEXT)
+
 
 def cancel(update, context):
     user = update.message.from_user
