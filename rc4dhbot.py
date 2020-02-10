@@ -41,8 +41,8 @@ def error(update, context):
 #EMOJIS
 WHALE = u"\U0001F40B"
 THERMOMETER = u"\U0001F321"
-FLEXED_BICEPS = u"\uE14C"
-CAMERA = u"\uE008"
+FLEXED_BICEPS = u"\U000FEB5E"
+CAMERA = u"\U0001F4F8"
 ###########################################
 
 # Set up states in the conversation
@@ -103,7 +103,7 @@ def start(update, context):
     # job queue for reminders
     jobq = context.job_queue
     jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
-    jobq.run_daily(callback_reminder, datetime.time(13, 47, 00), context=update.message.chat_id)
+    jobq.run_daily(callback_reminder, datetime.time(13, 52, 00), context=update.message.chat_id)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
@@ -216,7 +216,7 @@ def callback_reminder(context):
                     "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA + "Remember to take a photo of your temperature readings!\n\n" + \
                     "Last but not least, please rest well and take care during this period!!" + FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
 
-    context.bot.send_message(chat_id=context.job.context, text=REMINDER_TEXT)
+    context.bot.send_message(chat_id=context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
 def cancel(update, context):
     user = update.message.from_user
