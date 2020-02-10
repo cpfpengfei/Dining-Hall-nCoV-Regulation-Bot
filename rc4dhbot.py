@@ -88,7 +88,7 @@ def start(update, context):
         # job queue for reminders
         jobq = context.job_queue
         jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=chatid)
-        jobq.run_daily(callback_reminder, datetime.time(12, 58, 00), context=chatid)
+        jobq.run_daily(callback_reminder, datetime.time(13, 1, 00), context=chatid)
 
     except AttributeError: # for Backs entry
         query = update.callback_query
