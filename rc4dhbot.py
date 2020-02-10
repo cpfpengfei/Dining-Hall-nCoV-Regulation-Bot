@@ -6,7 +6,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 import os
 import logging
 from leaveNow import setEatinTimer, setTakeawayTimer
-from reminder import callback_reminder, run_morning, run_night
+from reminder import run_morning, run_night
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗ 
