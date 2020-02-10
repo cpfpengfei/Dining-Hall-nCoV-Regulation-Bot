@@ -5,7 +5,9 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
 import os
 import logging
-#import emoji
+import emoji
+from leaveNow import setEatinTimer, setTakeawayTimer
+from reminder import run_morning, run_night
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗ 
@@ -207,6 +209,14 @@ def main():
     dispatcher.add_error_handler(error)
 
     # admin commands, if any?
+
+    dispatcher.add_handler(CommandHandler('testEatin', setEatinTimer))
+
+    dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
+
+    dispatcher.add_handler(CommandHandler('runMorning',run_morning))
+
+    dispatcher.add_handler(CommandHandler('runNight', run_night))
 
     updater.start_polling()
     updater.idle()
