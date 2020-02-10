@@ -85,6 +85,11 @@ def start(update, context):
                                 parse_mode = ParseMode.HTML,
                                 reply_markup = InlineKeyboardMarkup(menu))
 
+        # job queue for reminders
+        jobq = context.job_queue
+        jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=chatid)
+        jobq.run_daily(callback_reminder, datetime.time(12, 58, 00), context=chatid)
+
     except AttributeError: # for Backs entry
         query = update.callback_query
         user = query.from_user
@@ -200,9 +205,8 @@ def send_final(update, context):
 
 # reminder function
 
-
 def callback_reminder(context):
-    context.bot.send_message(context.job.context, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
+    context.bot.send_message(chat_id=context, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
 
 def cancel(update, context):
     user = update.message.from_user
@@ -226,11 +230,6 @@ def main():
 
     # dispatcher to register handlers
     dispatcher = updater.dispatcher
-
-    # job queue for reminders
-    jobq = updater.job_queue
-    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00))
-    jobq.run_daily(callback_reminder, datetime.time(12, 49, 00))
     
     # create conversational handler for different states and dispatch it
     conv_handler = ConversationHandler(
