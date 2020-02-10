@@ -210,12 +210,12 @@ def send_final(update, context):
                                 parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user 
 
     indicatedIntention = context.chat_data['Intention']
-    # if (indicatedIntention == "TAKEAWAY"):
-    #     setTakeawayTimer(update, context)
-    # elif (indicatedIntention == "DINE IN"):
-    #     setEatinTimer(update, context)
-    # else:
-    #     logger.warning("Something went wrong with the intention...")
+    if (indicatedIntention == "TAKEAWAY"):
+        setTakeawayTimer(update, context)
+    elif (indicatedIntention == "DINE IN"):
+        setEatinTimer(update, context)
+    else:
+        logger.warning("Something went wrong with the intention...")
 
     # TODO POSTGRESQL: GET DATA HERE AND UPDATE DATABASE
 
