@@ -5,6 +5,7 @@ from telegram import ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler
 import os
 import logging
+from leaveNow import setEatinTimer, setTakeawayTimer
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗ 
@@ -147,6 +148,10 @@ def main():
     dispatcher.add_handler(CommandHandler('eatin', eatin))
 
     dispatcher.add_handler(CommandHandler('leave', leave))
+
+    dispatcher.add_handler(CommandHandler('testEatin', setEatinTimer))
+
+    dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
 
     updater.start_polling()
     updater.idle()
