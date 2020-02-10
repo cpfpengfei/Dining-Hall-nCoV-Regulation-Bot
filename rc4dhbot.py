@@ -40,7 +40,7 @@ def error(update, context):
 #EMOJIS
 WHALE = u"\U0001F40B"
 THERMOMETER = u"\U0001F321"
-FLEXED_BICEPS = u"\U0001F4AA\U0001F3FB"
+FLEXED_BICEPS = u"\U0001F3FB"
 CAMERA = u"\U0001F4F8"
 ###########################################
 
@@ -280,8 +280,6 @@ def main():
 
     # logs all errors 
     dispatcher.add_error_handler(error)
-
-    # admin commands, if any?
 
     updater.start_polling()
     updater.idle()
