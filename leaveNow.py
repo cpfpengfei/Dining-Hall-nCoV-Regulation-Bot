@@ -6,7 +6,7 @@
 # ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝
 #                                                                       
 def alarmEatin(context):
-    EATIN_MESSAGE = "EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES. PLEASE LEAVE NOW."
+    EATIN_MESSAGE = "EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW."
 
     job = context.job
     context.bot.send_message(job.context, text = EATIN_MESSAGE)
@@ -17,13 +17,13 @@ def alarmTakeAway(context):
     job = context.job
     context.bot.send_message(job.context, text = TAKEAWAY_MESSAGE)
 
-# ████████╗██╗███╗   ███╗███████╗██████╗ 
-# ╚══██╔══╝██║████╗ ████║██╔════╝██╔══██╗
-#    ██║   ██║██╔████╔██║█████╗  ██████╔╝
-#    ██║   ██║██║╚██╔╝██║██╔══╝  ██╔══██╗
-#    ██║   ██║██║ ╚═╝ ██║███████╗██║  ██║
-#    ╚═╝   ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝
-#                                        
+# ██╗   ██╗███╗   ██╗██╗   ██╗███████╗███████╗██████╗ 
+# ██║   ██║████╗  ██║██║   ██║██╔════╝██╔════╝██╔══██╗
+# ██║   ██║██╔██╗ ██║██║   ██║███████╗█████╗  ██║  ██║
+# ██║   ██║██║╚██╗██║██║   ██║╚════██║██╔══╝  ██║  ██║
+# ╚██████╔╝██║ ╚████║╚██████╔╝███████║███████╗██████╔╝
+#  ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚══════╝╚═════╝ 
+#                                                                            
 
 def setEatinTimer(update, context):
     chat_id = update.message.chat_id

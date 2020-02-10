@@ -4,7 +4,7 @@ Ver 0.2: Buttons, conversational handlers, and user states
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
-from leaveNow import setEatinTimer, setTakeawayTimer
+from leaveNow import alarmEatin, alarmTakeAway
 import os
 import logging
 import datetime
@@ -212,10 +212,10 @@ def send_final(update, context):
     indicatedIntention = context.chat_data['Intention']
     logger.info("Pulled intention is" + indicatedIntention)
     if (indicatedIntention == "TAKEAWAY"):
-        CommandHandler('takeawayTimer', setTakeawayTimer)
+        new_job = context.job_queue.run_once(alarmTakeAway, 5, context = chatid)
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE IN"):
-        CommandHandler('dineInTimer', setEatinTimer)
+        new_job = context.job_queue.run_once(alarmEatin, 1200, context = chatid)
         logger.info("Dining in timer has started")
     else:
         logger.warning("Something went wrong with the intention...")
