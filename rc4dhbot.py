@@ -105,7 +105,7 @@ def start(update, context):
     jobq.run_daily(callback_reminder, datetime.time(9, 30, 00))
 
     # for testing
-    #jobq.run_daily(callback_reminder, datetime.time(14, 10, 00), context=update.message.chat_id)
+    jobq.run_daily(callback_reminder, datetime.time(16, 32, 00), context=update.message.chat_id)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
