@@ -6,6 +6,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
 import os
 import logging
+from leaveNow import setEatinTimer, setTakeawayTimer
 import datetime
 
 
