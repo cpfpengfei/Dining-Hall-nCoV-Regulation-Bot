@@ -89,8 +89,8 @@ def start(update, context):
                                 parse_mode = ParseMode.HTML,
                                 reply_markup = InlineKeyboardMarkup(menu))
         # job queue for reminders
-        jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context = chatid)
-        jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context = chatid)
+        jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context = chatid)
+        jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context = chatid)
 
     except AttributeError: # for Backs entry
         query = update.callback_query
@@ -254,31 +254,26 @@ def callback_reminder(context):
 
     context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
-def alarmEatin(update, context):
+def alarmEatin(context):
     EATIN_MESSAGE = "EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW."
 
-    query = update.callback_query
     job = context.job
-    chatid = update.message.chat_id
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data = 'EXIT')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
     
     context.bot.send_message(text = EATIN_MESSAGE,
-                            chat_id = chatid,
                             reply_markup = InlineKeyboardMarkup(menu))
 
     return CONFIRM_EXIT
 
-def alarmTakeAway(update, context):
+def alarmTakeAway(context):
     TAKEAWAY_MESSAGE = "EH HELLO! YOU HAVE BEEN IN THE DINING HALL FOR 10 MINUTES. YOU NEED 10 MINUTES TO TAKEAWAY MEH? PLEASE LEAVE NOW."
 
     job = context.job
-    chatid = update.message.chat_id
     button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = 'EXIT')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
 
     context.bot.send_message(text = TAKEAWAY_MESSAGE,
-                            chat_id = chatid,
                             reply_markup = InlineKeyboardMarkup(menu))
 
     return CONFIRM_EXIT
