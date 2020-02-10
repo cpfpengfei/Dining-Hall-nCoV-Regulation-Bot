@@ -85,11 +85,6 @@ def start(update, context):
                                 parse_mode = ParseMode.HTML,
                                 reply_markup = InlineKeyboardMarkup(menu))
 
-        # job queue for reminders
-        jobq = context.job_queue
-        jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=chatid)
-        jobq.run_daily(callback_reminder, datetime.time(13, 1, 00), context=chatid)
-
     except AttributeError: # for Backs entry
         query = update.callback_query
         user = query.from_user
@@ -100,7 +95,11 @@ def start(update, context):
                                     message_id=query.message.message_id, # to edit the prev message sent by bot
                                     reply_markup =InlineKeyboardMarkup(menu),
                                     parse_mode=ParseMode.HTML) 
-                                    
+    # job queue for reminders
+    jobq = context.job_queue
+    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=context)
+    jobq.run_daily(callback_reminder, datetime.time(13, 7, 00), context=context)
+
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
 
