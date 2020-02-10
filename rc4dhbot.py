@@ -1,12 +1,11 @@
 """
 Ver 0.2: Buttons, conversational handlers, and user states 
 """
-import telegram
+
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
 import os
 import logging
-import emoji
 from leaveNow import setEatinTimer, setTakeawayTimer
 import datetime
 
@@ -41,17 +40,15 @@ def error(update, context):
 #EMOJIS
 WHALE = u"\U0001F40B"
 THERMOMETER = u"\U0001F321"
-FLEXED_BICEPS = u"\U000FEB5E"
+FLEXED_BICEPS = u"\U0001F3FB"
 CAMERA = u"\U0001F4F8"
 ###########################################
 
 # Set up states in the conversation
 (AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY) = range(4)
 
-# Set up INFO_STORE to store state data temporarily
-INFO_STORE = {}
 
-## INITIATE POSTGRESQL HERE 
+## TODO INITIATE POSTGRESQL HERE 
 
 
 
@@ -70,7 +67,7 @@ Buttons and what they mean:
 
 def start(update, context):
     reply_text = "Hello!\n\n"
-  
+
     # TODO get STATUS_TEXT by drawing live data from POSTGRESQL 
 
     STATUS_TEXT = "<b>Current Status:</b>\n\nNumber of people queueing up for food: X\n\nNumber of people eating in the dining hall: Y"
@@ -104,8 +101,11 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML) 
     # job queue for reminders
     jobq = context.job_queue
-    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
-    jobq.run_daily(callback_reminder, datetime.time(13, 52, 00), context=update.message.chat_id)
+    # jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
+    # jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context=update.message.chat_id)
+
+    # for testing
+    #jobq.run_daily(callback_reminder, datetime.time(14, 10, 00), context=update.message.chat_id)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
@@ -127,11 +127,10 @@ def send_help(update, context):
     button_list = [InlineKeyboardButton(text='Back', callback_data = 'BACKTOSTART')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
 
-    context.bot.editMessageText(text = reply_text,
-                                chat_id = chatid,
-                                message_id=query.message.message_id,
-                                reply_markup = InlineKeyboardMarkup(menu),
-                                parse_mode=ParseMode.HTML) 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
     return AFTER_HELP
 
 
@@ -152,11 +151,10 @@ def enter_dh(update, context):
                 InlineKeyboardButton(text='Go Back!', callback_data = 'BACKTOSTART')]
     menu = build_menu(button_list, n_cols = 2, header_buttons = None, footer_buttons = None)
 
-    context.bot.editMessageText(text = reply_text,
-                                chat_id = chatid,
-                                message_id=query.message.message_id,
-                                reply_markup = InlineKeyboardMarkup(menu),
-                                parse_mode=ParseMode.HTML) 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
     return AFTER_ENTER
 
 
@@ -175,25 +173,23 @@ def indicate_intention(update, context):
         intention = "DINE IN"
         duration = "20"
 
-    # initiate user for info store temp storage
-    INFO_STORE[user.id] = {}
-    INFO_STORE[user.id]['Duration'] 
+    # Using chat_data to store information from the same chat ID
+    context.chat_data['Intention'] = intention
 
     log_text = "User " + str(user.id) + " has indicated to {}. Duration is also initiated in Info Store.".format(intention)
     logger.info(log_text)
 
-    reply_text = "Okay! Got it, you wish to {} in the Dining Ha ll now, can I confirm?".format(intention)
+    reply_text = "Okay! Got it, you wish to {} in the Dining Hall now, can I confirm?".format(intention)
     reply_text += "\n\nOr did you mis-press? You can cancel the whole process to go back to the start."
 
     button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data = 'CONFIRM_ENTRY'),
                 InlineKeyboardButton(text='Cancel, please!', callback_data = 'CANCEL')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
 
-    context.bot.editMessageText(text = reply_text,
-                                chat_id = chatid,
-                                message_id=query.message.message_id,
-                                reply_markup = InlineKeyboardMarkup(menu),
-                                parse_mode=ParseMode.HTML) 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
     return CONFIRM_ENTRY
 
 
@@ -208,14 +204,19 @@ def send_final(update, context):
 
     reply_text = "Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!\n\nI will remind you again to indicate that you are leaving the dining hall!\n\nEnjoy your meal!"
 
-    context.bot.editMessageText(text = reply_text,
-                                chat_id = chatid,
-                                message_id=query.message.message_id,
-                                parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML) # no buttons for final text sent to the user 
+
+    indicatedIntention = context.chat_data['Intention']
+    # if (indicatedIntention == "TAKEAWAY"):
+    #     setTakeawayTimer(update, context)
+    # elif (indicatedIntention == "DINE IN"):
+    #     setEatinTimer(update, context)
+    # else:
+    #     logger.warning("Something went wrong with the intention...")
 
     # TODO POSTGRESQL: GET DATA HERE AND UPDATE DATABASE
-    USERID = str(user.id)
-    DURATION = INFO_STORE[user.id]['Duration'] 
 
     return ConversationHandler.END
 
@@ -224,9 +225,12 @@ def send_final(update, context):
 def callback_reminder(context):
     REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
                     "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
-                    "For those who do not have thermometers, RAs will be stationed at the <b>Level 1 Main Entrance</b> on Sunday to Saturday from:\n" + \
-                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA + "Remember to take a photo of your temperature readings!\n\n" + \
-                    "Last but not least, please rest well and take care during this period!!" + FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
+                    "For those who do not have thermometers, RAs will be stationed at the " \
+                    "<b>Level 1 Main Entrance</b> on Sunday to Saturday from:\n" + \
+                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA +\
+                    "Remember to take a photo of your temperature readings!\n\n" + \
+                    "Last but not least, please rest well and take care during this period!!" + \
+                    FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
 
     context.bot.send_message(chat_id=context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
@@ -278,12 +282,6 @@ def main():
 
     # logs all errors 
     dispatcher.add_error_handler(error)
-
-    # admin commands, if any?
-
-    dispatcher.add_handler(CommandHandler('testEatin', setEatinTimer))
-
-    dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
 
     updater.start_polling()
     updater.idle()
