@@ -4,7 +4,7 @@ Ver 0.2: Buttons, conversational handlers, and user states
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
-from leaveNow import alarmEatin, alarmTakeAway
+from leaveNow import alarmEatin, alarmTakeAway, build_menu
 import os
 import logging
 import datetime
@@ -22,15 +22,6 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     level = logging.INFO)
 logger = logging.getLogger(__name__)
-
-# A function to build menu of buttons for every occasion 
-def build_menu(buttons, n_cols, header_buttons, footer_buttons):
-    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
-    if header_buttons:
-        menu.insert(0, header_buttons)
-    if footer_buttons:
-        menu.append(footer_buttons)
-    return menu
 
 def error(update, context):
     """Log Errors caused by Updates."""
