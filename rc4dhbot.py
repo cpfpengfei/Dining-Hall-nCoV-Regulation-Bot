@@ -78,6 +78,7 @@ def start(update, context):
     button_list = [InlineKeyboardButton(text='Enter Dining Hall', callback_data = 'ENTER'),
                  InlineKeyboardButton(text='Help / About', callback_data = 'HELP')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
+    jobq = context.job_queue
 
     # split into 2 modes of entry for this state - can be command or callbackquery data
     try: # for command entry
@@ -88,8 +89,11 @@ def start(update, context):
                                 chat_id = chatid,
                                 parse_mode = ParseMode.HTML,
                                 reply_markup = InlineKeyboardMarkup(menu))
+        # job queue for reminders
+        jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context = chatid)
+        jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context = chatid)
 
-    except: # for Backs entry
+    except AttributeError: # for Backs entry
         query = update.callback_query
         user = query.from_user
         chatid = query.message.chat_id
@@ -98,14 +102,13 @@ def start(update, context):
                                     chat_id = chatid,
                                     message_id=query.message.message_id, # to edit the prev message sent by bot
                                     reply_markup =InlineKeyboardMarkup(menu),
-                                    parse_mode=ParseMode.HTML) 
-    # job queue for reminders
-    jobq = context.job_queue
-    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00))
-    jobq.run_daily(callback_reminder, datetime.time(9, 30, 00))
+                                    parse_mode=ParseMode.HTML)
+        # job queue for reminders
+        jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context = chatid)
+        jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context = chatid)
 
-    # for testing
-    jobq.run_daily(callback_reminder, datetime.time(16, 43, 00), context=update.message.chat_id)
+        # for testing
+        jobq.run_daily(callback_reminder, datetime.time(17, 05, 00), context = chatid)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
