@@ -4,9 +4,9 @@ Ver 0.2: Buttons, conversational handlers, and user states
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
+from leaveNow import setEatinTimer, setTakeawayTimer
 import os
 import logging
-from leaveNow import setEatinTimer, setTakeawayTimer
 import datetime
 
 
@@ -101,8 +101,8 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML) 
     # job queue for reminders
     jobq = context.job_queue
-    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
-    jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context=update.message.chat_id)
+    # jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
+    # jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context=update.message.chat_id)
 
     # for testing
     #jobq.run_daily(callback_reminder, datetime.time(14, 10, 00), context=update.message.chat_id)
