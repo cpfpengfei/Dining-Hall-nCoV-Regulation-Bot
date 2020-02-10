@@ -31,4 +31,4 @@ def setEatinTimer(update, context):
 
 def setTakeawayTimer(update, context):
     chat_id = update.message.chat_id
-    new_job = context.job_queue.run_once(alarmTakeAway, 600, context = chat_id)
+    new_job = context.job_queue.run_once(alarmTakeAway, 5, context = chat_id)
