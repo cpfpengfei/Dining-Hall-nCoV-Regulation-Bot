@@ -105,7 +105,7 @@ def start(update, context):
     jobq.run_daily(callback_reminder, datetime.time(9, 30, 00))
 
     # for testing
-    jobq.run_daily(callback_reminder, datetime.time(16, 37, 00))
+    jobq.run_daily(callback_reminder, datetime.time(16, 43, 00), context=update.message.chat_id)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
@@ -236,7 +236,7 @@ def callback_reminder(context):
                     "Last but not least, please rest well and take care during this period!!" + \
                     FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
 
-    context.bot.send_message(chat_id=context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
+    context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
 
 def cancel(update, context):
