@@ -1,10 +1,12 @@
 import datetime
 
 def run_morning(update, context):
-    context.job_queue.run_daily(callback_reminder, time=datetime.time(8, 00, 00))
+    chat_id = update.message.chat_id
+    context.job_queue.run_daily(callback_reminder(chat_id, context.bot), time=datetime.time(8, 00, 00))
 
 def run_night(update, context):
-    context.job_queue.run_daily(callback_reminder, time=datetime.time(18, 45, 00))
+    chat_id = update.message.chat_id
+    context.job_queue.run_daily(callback_reminder(chat_id, context.bot), time=datetime.time(18, 55, 00))
 
-def callback_reminder(bot, user):
-    bot.send_message(chat_id=user.id, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
+def callback_reminder(chat_id, bot):
+    bot.send_message(chat_id=chat_id, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
