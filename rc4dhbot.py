@@ -214,7 +214,7 @@ def main():
 
     dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
 
-    dispatcher.add_handler(CommandHandler('runMorning',run_morning))
+    dispatcher.add_handler(CommandHandler('runMorning', run_morning))
 
     dispatcher.add_handler(CommandHandler('runNight', run_night))
 
