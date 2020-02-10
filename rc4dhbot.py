@@ -202,7 +202,7 @@ def send_final(update, context):
 
 
 def callback_reminder(context: telegram.ext.CallbackContext):
-    context.bot.send_message(chat_id=context, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
+    context.bot.send_message(chat_id=id, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
 
 def cancel(update, context):
     user = update.message.from_user
