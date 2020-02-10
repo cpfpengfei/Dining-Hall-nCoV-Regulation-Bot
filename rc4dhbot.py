@@ -97,8 +97,8 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML) 
     # job queue for reminders
     jobq = context.job_queue
-    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=context)
-    jobq.run_daily(callback_reminder, datetime.time(13, 7, 00), context=context)
+    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
+    jobq.run_daily(callback_reminder, datetime.time(13, 12, 00), context=update.message.chat_id)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
