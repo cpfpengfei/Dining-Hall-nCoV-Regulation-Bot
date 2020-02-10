@@ -40,7 +40,7 @@ def error(update, context):
 #EMOJIS
 WHALE = u"\U0001F40B"
 THERMOMETER = u"\U0001F321"
-FLEXED_BICEPS = u"\U0001F3FB"
+FLEXED_BICEPS = u"\U0001F4AA\U0001F3FB"
 CAMERA = u"\U0001F4F8"
 ###########################################
 
@@ -105,7 +105,7 @@ def start(update, context):
     jobq.run_daily(callback_reminder, datetime.time(9, 30, 00))
 
     # for testing
-    jobq.run_daily(callback_reminder, datetime.time(16, 32, 00), context=update.message.chat_id)
+    jobq.run_daily(callback_reminder, datetime.time(16, 37, 00))
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
