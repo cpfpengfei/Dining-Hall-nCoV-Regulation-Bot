@@ -181,7 +181,7 @@ def indicate_intention(update, context):
     log_text = "User " + str(user.id) + " has indicated to {}. Duration is also initiated in Info Store.".format(intention)
     logger.info(log_text)
 
-    reply_text = "Okay! Got it, you wish to {} in the Dining Ha ll now, can I confirm?".format(intention)
+    reply_text = "Okay! Got it, you wish to {} in the Dining Hall now, can I confirm?".format(intention)
     reply_text += "\n\nOr did you mis-press? You can cancel the whole process to go back to the start."
 
     button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data = 'CONFIRM_ENTRY'),
@@ -279,10 +279,6 @@ def main():
     dispatcher.add_error_handler(error)
 
     # admin commands, if any?
-
-    dispatcher.add_handler(CommandHandler('testEatin', setEatinTimer))
-
-    dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
 
     updater.start_polling()
     updater.idle()
