@@ -211,9 +211,9 @@ def send_final(update, context):
 
     indicatedIntention = context.chat_data['Intention']
     if (indicatedIntention == "TAKEAWAY"):
-        setTakeawayTimer(update, context)
+        CommandHandler('takeawayTimer', setTakeawayTimer)
     elif (indicatedIntention == "DINE IN"):
-        setEatinTimer(update, context)
+        CommandHandler('dineInTimer', setEatinTimer)
     else:
         logger.warning("Something went wrong with the intention...")
 
