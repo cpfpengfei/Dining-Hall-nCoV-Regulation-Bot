@@ -1,4 +1,5 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from rc4dhbot import build_menu
 
 #  █████╗ ██╗      █████╗ ██████╗ ███╗   ███╗███████╗
 # ██╔══██╗██║     ██╔══██╗██╔══██╗████╗ ████║██╔════╝
