@@ -37,7 +37,11 @@ def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
-
+###########################################
+#EMOJIS
+WHALE = u"\U0001F40B"
+THERMOMETER = u"\U0001F321"
+SICK_MASK = u"\uE40C"
 ###########################################
 
 # Set up states in the conversation
@@ -98,7 +102,7 @@ def start(update, context):
     # job queue for reminders
     jobq = context.job_queue
     jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
-    jobq.run_daily(callback_reminder, datetime.time(13, 24, 00), context=update.message.chat_id)
+    jobq.run_daily(callback_reminder, datetime.time(13, 39, 00), context=update.message.chat_id)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
@@ -205,7 +209,13 @@ def send_final(update, context):
 # reminder function
 
 def callback_reminder(context):
-    context.bot.send_message(chat_id=context.job.context, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
+    REMINDER_TEXT = WHALE + WHALE + WHALE + "DAILY TEMPERATURE TAKING" + WHALE + WHALE + WHALE + \
+                    "\n\nHello! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n" + \
+                    "For those who do not have thermometers, RAs will be stationed at the Level 1 Main Entrance on Sunday to Saturday from:\n" + \
+                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\nRemember to take a photo of your temperature readings!\n\n" + \
+                    "Please rest well and take care during this period!!" + SICK_MASK
+
+    context.bot.send_message(chat_id=context.job.context, text=REMINDER_TEXT)
 
 def cancel(update, context):
     user = update.message.from_user
