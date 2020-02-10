@@ -1,12 +1,12 @@
 """
 Ver 0.2: Buttons, conversational handlers, and user states 
 """
-import telegram
+
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
 import os
 import logging
-from leaveNow import setEatinTimer, setTakeawayTimer
+from leaveNow import setEatinTimer, setTakewayTimer
 import datetime
 
 
@@ -184,7 +184,7 @@ def indicate_intention(update, context):
     log_text = "User " + str(user.id) + " has indicated to {}. Duration is also initiated in Info Store.".format(intention)
     logger.info(log_text)
 
-    reply_text = "Okay! Got it, you wish to {} in the Dining Ha ll now, can I confirm?".format(intention)
+    reply_text = "Okay! Got it, you wish to {} in the Dining Hall now, can I confirm?".format(intention)
     reply_text += "\n\nOr did you mis-press? You can cancel the whole process to go back to the start."
 
     button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data = 'CONFIRM_ENTRY'),
@@ -226,9 +226,12 @@ def send_final(update, context):
 def callback_reminder(context):
     REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
                     "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
-                    "For those who do not have thermometers, RAs will be stationed at the <b>Level 1 Main Entrance</b> on Sunday to Saturday from:\n" + \
-                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA + "Remember to take a photo of your temperature readings!\n\n" + \
-                    "Last but not least, please rest well and take care during this period!!" + FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
+                    "For those who do not have thermometers, RAs will be stationed at the " \
+                    "<b>Level 1 Main Entrance</b> on Sunday to Saturday from:\n" + \
+                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA +\
+                    "Remember to take a photo of your temperature readings!\n\n" + \
+                    "Last but not least, please rest well and take care during this period!!" + \
+                    FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
 
     context.bot.send_message(chat_id=context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
