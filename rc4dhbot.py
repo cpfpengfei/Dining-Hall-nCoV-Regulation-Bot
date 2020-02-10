@@ -6,7 +6,6 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
 import os
 import logging
-import emoji
 from leaveNow import setEatinTimer, setTakeawayTimer
 import datetime
 
@@ -105,7 +104,7 @@ def start(update, context):
     # job queue for reminders
     jobq = context.job_queue
     jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
-    jobq.run_daily(callback_reminder, datetime.time(13, 55, 00), context=update.message.chat_id)
+    jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context=update.message.chat_id)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
