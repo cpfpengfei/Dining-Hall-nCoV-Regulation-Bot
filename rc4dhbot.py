@@ -230,7 +230,7 @@ def main():
     # job queue for reminders
     jobq = updater.job_queue
     jobq.run_daily(callback_reminder, datetime.time(0, 00, 00))
-    jobq.run_daily(callback_reminder, datetime.time(12, 9, 00))
+    jobq.run_daily(callback_reminder, datetime.time(12, 21, 00))
     
     # create conversational handler for different states and dispatch it
     conv_handler = ConversationHandler(
