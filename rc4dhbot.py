@@ -98,7 +98,7 @@ def start(update, context):
     # job queue for reminders
     jobq = context.job_queue
     jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=context)
-    jobq.run_daily(callback_reminder, datetime.time(13, 17, 00), context=context)
+    jobq.run_daily(callback_reminder, datetime.time(13, 20, 00), context=context)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
@@ -204,8 +204,8 @@ def send_final(update, context):
 
 # reminder function
 
-def callback_reminder(update, context):
-    context.bot.send_message(chat_id=update.message.chat_id, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
+def callback_reminder(context):
+    context.bot.send_message(chat_id=context.job.context, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
 
 def cancel(update, context):
     user = update.message.from_user
