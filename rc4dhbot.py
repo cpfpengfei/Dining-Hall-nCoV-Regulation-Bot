@@ -67,6 +67,12 @@ Buttons and what they mean:
 """
 
 def start(update, context):
+    user = update.message.from_user
+    chatid = update.message.chat_id
+
+    log_text = "User " + str(user.id) + " has started using bot."
+    logger.info(log_text)
+
     reply_text = "Hello!\n\n"
 
     # TODO get STATUS_TEXT by drawing live data from POSTGRESQL 
@@ -80,37 +86,10 @@ def start(update, context):
                  InlineKeyboardButton(text='Help / About', callback_data = 'HELP')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
 
-    # split into 2 modes of entry for this state - can be command or callbackquery data
-    try: # for command entry
-        user = update.message.from_user
-        chatid = update.message.chat_id
-        # if new start, send a new message
-        context.bot.send_message(text = reply_text,
-                                chat_id = chatid,
-                                parse_mode = ParseMode.HTML,
-                                reply_markup = InlineKeyboardMarkup(menu))
-
-    except AttributeError: # for Backs entry
-        query = update.callback_query
-        user = query.from_user
-        chatid = query.message.chat_id
-        # if existing user, edit message
-        context.bot.editMessageText(text = reply_text,
-                                    chat_id = chatid,
-                                    message_id=query.message.message_id, # to edit the prev message sent by bot
-                                    reply_markup =InlineKeyboardMarkup(menu),
-                                    parse_mode=ParseMode.HTML) 
-    # job queue for reminders
-    jobq = context.job_queue
-    # jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
-    # jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context=update.message.chat_id)
-
-    # for testing
-    #jobq.run_daily(callback_reminder, datetime.time(14, 10, 00), context=update.message.chat_id)
-
-    log_text = "User " + str(user.id) + " has started using bot."
-    logger.info(log_text)
-
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
     return AFTER_START
 
 
@@ -128,11 +107,10 @@ def send_help(update, context):
     button_list = [InlineKeyboardButton(text='Back', callback_data = 'BACKTOSTART')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
 
-    context.bot.editMessageText(text = reply_text,
-                                chat_id = chatid,
-                                message_id=query.message.message_id,
-                                reply_markup = InlineKeyboardMarkup(menu),
-                                parse_mode=ParseMode.HTML) 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
     return AFTER_HELP
 
 
@@ -153,11 +131,10 @@ def enter_dh(update, context):
                 InlineKeyboardButton(text='Go Back!', callback_data = 'BACKTOSTART')]
     menu = build_menu(button_list, n_cols = 2, header_buttons = None, footer_buttons = None)
 
-    context.bot.editMessageText(text = reply_text,
-                                chat_id = chatid,
-                                message_id=query.message.message_id,
-                                reply_markup = InlineKeyboardMarkup(menu),
-                                parse_mode=ParseMode.HTML) 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
     return AFTER_ENTER
 
 
@@ -193,11 +170,10 @@ def indicate_intention(update, context):
                 InlineKeyboardButton(text='Cancel, please!', callback_data = 'CANCEL')]
     menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
 
-    context.bot.editMessageText(text = reply_text,
-                                chat_id = chatid,
-                                message_id=query.message.message_id,
-                                reply_markup = InlineKeyboardMarkup(menu),
-                                parse_mode=ParseMode.HTML) 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
     return CONFIRM_ENTRY
 
 
@@ -212,10 +188,9 @@ def send_final(update, context):
 
     reply_text = "Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!\n\nI will remind you again to indicate that you are leaving the dining hall!\n\nEnjoy your meal!"
 
-    context.bot.editMessageText(text = reply_text,
-                                chat_id = chatid,
-                                message_id=query.message.message_id,
-                                parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML) # no buttons for final text sent to the user 
 
     indicatedIntention = context.chat_data['Intention']
     # if (indicatedIntention == "TAKEAWAY"):
