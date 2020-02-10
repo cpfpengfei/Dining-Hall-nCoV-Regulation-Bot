@@ -89,7 +89,7 @@ def start(update, context):
                                 parse_mode = ParseMode.HTML,
                                 reply_markup = InlineKeyboardMarkup(menu))
 
-    except AttributeError: # for Backs entry
+    except: # for Backs entry
         query = update.callback_query
         user = query.from_user
         chatid = query.message.chat_id
