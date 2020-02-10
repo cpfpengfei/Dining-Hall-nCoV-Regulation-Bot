@@ -210,10 +210,13 @@ def send_final(update, context):
                                 parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user 
 
     indicatedIntention = context.chat_data['Intention']
+    logger.info("Pulled intention is" + indicatedIntention)
     if (indicatedIntention == "TAKEAWAY"):
         CommandHandler('takeawayTimer', setTakeawayTimer)
+        logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE IN"):
         CommandHandler('dineInTimer', setEatinTimer)
+        logger.info("Dining in timer has started")
     else:
         logger.warning("Something went wrong with the intention...")
 
