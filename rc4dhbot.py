@@ -103,12 +103,6 @@ def start(update, context):
                                     message_id=query.message.message_id, # to edit the prev message sent by bot
                                     reply_markup =InlineKeyboardMarkup(menu),
                                     parse_mode=ParseMode.HTML)
-        # job queue for reminders
-        jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context = chatid)
-        jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context = chatid)
-
-        # for testing
-        jobq.run_daily(callback_reminder, datetime.time(17, 8, 00), context = chatid)
 
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
