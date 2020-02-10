@@ -176,9 +176,24 @@ def send_final(update, context):
     context.bot.send_message(text = reply_text,
                             chat_id = chatid,
                             parse_mode = ParseMode.HTML) # no buttons for final text sent to the user 
-                            
+
     return ConversationHandler.END
 
+
+def cancel(update, context):
+    user = update.message.from_user
+    chatid = update.message.chat_id
+
+    log_text = "User " + str(user.id) + " has cancelled using bot."
+    logger.info(log_text)
+
+    reply_text = "Okay Bye!\n\n"
+    reply_text += HELP_TEXT
+
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML)
+    return ConversationHandler.END
 
 
 def main():   
@@ -205,6 +220,7 @@ def main():
                                 CallbackQueryHandler(callback = start, pattern = '^(CANCEL)$')],
                 
                 },
+            fallbacks = [CommandHandler('cancel', cancel)],
             allow_reentry = True
         )
     dispatcher.add_handler(conv_handler)
