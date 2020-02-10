@@ -1,13 +1,14 @@
 """
 Ver 0.2: Buttons, conversational handlers, and user states 
 """
+import telegram
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
 import os
 import logging
 import emoji
 from leaveNow import setEatinTimer, setTakeawayTimer
-from reminder import run_morning, run_night
+import datetime
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗ 
@@ -197,6 +198,11 @@ def send_final(update, context):
 
     return ConversationHandler.END
 
+# reminder function
+
+
+def callback_reminder(context: telegram.ext.CallbackContext):
+    context.bot.send_message(chat_id=context, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
 
 def cancel(update, context):
     user = update.message.from_user
@@ -220,6 +226,11 @@ def main():
 
     # dispatcher to register handlers
     dispatcher = updater.dispatcher
+
+    # job queue for reminders
+    jobq = updater.job_queue
+    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00))
+    jobq.run_daily(callback_reminder, datetime.time(12, 9, 00))
     
     # create conversational handler for different states and dispatch it
     conv_handler = ConversationHandler(
@@ -251,10 +262,6 @@ def main():
     dispatcher.add_handler(CommandHandler('testEatin', setEatinTimer))
 
     dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
-
-    dispatcher.add_handler(CommandHandler('runMorning', run_morning, pass_job_queue=True))
-
-    dispatcher.add_handler(CommandHandler('runNight', run_night, pass_job_queue=True))
 
     updater.start_polling()
     updater.idle()
