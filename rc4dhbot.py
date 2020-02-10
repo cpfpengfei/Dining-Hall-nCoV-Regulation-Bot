@@ -40,7 +40,7 @@ def error(update, context):
 #EMOJIS
 WHALE = u"\U0001F40B"
 THERMOMETER = u"\U0001F321"
-FLEXED_BICEPS = u"\U0001F4AA\U0001F3FB"
+FLEXED_BICEPS = u"\U0001F3FB"
 CAMERA = u"\U0001F4F8"
 ###########################################
 
@@ -69,7 +69,7 @@ Buttons and what they mean:
 
 def start(update, context):
     reply_text = "Hello!\n\n"
-  
+
     # TODO get STATUS_TEXT by drawing live data from POSTGRESQL 
 
     STATUS_TEXT = "<b>Current Status:</b>\n\nNumber of people queueing up for food: X\n\nNumber of people eating in the dining hall: Y"
@@ -103,8 +103,8 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML) 
     # job queue for reminders
     jobq = context.job_queue
-    jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
-    jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context=update.message.chat_id)
+    # jobq.run_daily(callback_reminder, datetime.time(0, 00, 00), context=update.message.chat_id)
+    # jobq.run_daily(callback_reminder, datetime.time(9, 30, 00), context=update.message.chat_id)
 
     # for testing
     #jobq.run_daily(callback_reminder, datetime.time(14, 10, 00), context=update.message.chat_id)
@@ -179,7 +179,10 @@ def indicate_intention(update, context):
 
     # initiate user for info store temp storage
     INFO_STORE[user.id] = {}
-    INFO_STORE[user.id]['Duration'] 
+    INFO_STORE[user.id]['Duration']
+
+    # Using chat_data to store information from the same chat ID
+    context.chat_data['Intention'] = intention
 
     log_text = "User " + str(user.id) + " has indicated to {}. Duration is also initiated in Info Store.".format(intention)
     logger.info(log_text)
@@ -214,6 +217,14 @@ def send_final(update, context):
                                 chat_id = chatid,
                                 message_id=query.message.message_id,
                                 parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user 
+
+    indicatedIntention = context.chat_data['Intention']
+    # if (indicatedIntention == "TAKEAWAY"):
+    #     setTakeawayTimer(update, context)
+    # elif (indicatedIntention == "DINE IN"):
+    #     setEatinTimer(update, context)
+    # else:
+    #     logger.warning("Something went wrong with the intention...")
 
     # TODO POSTGRESQL: GET DATA HERE AND UPDATE DATABASE
     USERID = str(user.id)
@@ -283,12 +294,6 @@ def main():
 
     # logs all errors 
     dispatcher.add_error_handler(error)
-
-    # admin commands, if any?
-
-    dispatcher.add_handler(CommandHandler('testEatin', setEatinTimer))
-
-    dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
 
     updater.start_polling()
     updater.idle()
