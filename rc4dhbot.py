@@ -116,10 +116,6 @@ def start(update, context):
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
 
-    context.bot.send_message(text = reply_text,
-                            chat_id = chatid,
-                            parse_mode = ParseMode.HTML,
-                            reply_markup = InlineKeyboardMarkup(menu))
     return AFTER_START
 
 
