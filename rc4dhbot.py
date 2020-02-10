@@ -202,7 +202,7 @@ def send_final(update, context):
 
 
 def callback_reminder(context):
-    context.bot.send_message(chat_id=context, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
+    context.bot.send_message(context.job.context, text='Hello please remember to log your temperature at https://myaces.nus.edu.sg/htd/.')
 
 def cancel(update, context):
     user = update.message.from_user
@@ -230,7 +230,7 @@ def main():
     # job queue for reminders
     jobq = updater.job_queue
     jobq.run_daily(callback_reminder, datetime.time(0, 00, 00))
-    jobq.run_daily(callback_reminder, datetime.time(12, 43, 00))
+    jobq.run_daily(callback_reminder, datetime.time(12, 49, 00))
     
     # create conversational handler for different states and dispatch it
     conv_handler = ConversationHandler(
