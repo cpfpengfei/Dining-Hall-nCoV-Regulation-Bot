@@ -7,7 +7,13 @@ import os
 import logging
 
 
-# Set up logging
+# ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗ 
+# ██║     ██╔═══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝ 
+# ██║     ██║   ██║██║  ███╗██║  ███╗██║██╔██╗ ██║██║  ███╗
+# ██║     ██║   ██║██║   ██║██║   ██║██║██║╚██╗██║██║   ██║
+# ███████╗╚██████╔╝╚██████╔╝╚██████╔╝██║██║ ╚████║╚██████╔╝
+# ╚══════╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+#                                                          
 logging.basicConfig(
     format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
     datefmt="%Y-%m-%d %H:%M:%S",
@@ -15,6 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Set up INFO_STORE to store user data 
+# TODO Change to FireBase
 INFO_STORE = {}
 POLL_NUMBER = 0
 
