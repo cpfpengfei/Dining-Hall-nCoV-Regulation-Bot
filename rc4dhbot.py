@@ -6,6 +6,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 import os
 import logging
 from leaveNow import setEatinTimer, setTakeawayTimer
+from reminder import callback_reminder, run_morning, run_night
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗ 
@@ -152,6 +153,10 @@ def main():
     dispatcher.add_handler(CommandHandler('testEatin', setEatinTimer))
 
     dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
+
+    dispatcher.add_handler(CommandHandler('runMorning',run_morning))
+
+    dispatcher.add_handler(CommandHandler('runNight', run_night))
 
     updater.start_polling()
     updater.idle()
