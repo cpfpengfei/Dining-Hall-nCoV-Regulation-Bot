@@ -8,6 +8,7 @@ from leaveNow import alarmEatin, alarmTakeAway
 import os
 import logging
 import datetime
+from sendMenu import getMenuURL
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗ 
@@ -225,7 +226,7 @@ def send_final(update, context):
     return ConversationHandler.END
 
 
-# reminder function to take temperature
+# Feature 3: Reminder function to take temperature
 def callback_reminder(context):
     REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
                     "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
@@ -237,6 +238,30 @@ def callback_reminder(context):
                     FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
 
     context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
+
+
+# Feature 4: Send DH menu (pdf only)
+def foodtoday(update, context):
+    user = update.message.from_user
+    chatid = update.message.chat_id
+    URL = getMenuURL(0)
+    reply_text = "<b>Here is the menu for Dining Hall food today:</b>\n\n"
+    reply_text += URL
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML)
+    return 
+
+def foodtmr(update, context):
+    user = update.message.from_user
+    chatid = update.message.chat_id
+    URL = getMenuURL(1)
+    reply_text = "<b>Here is the menu for Dining Hall food tomorrow:</b>\n\n"
+    reply_text += URL
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML)
+    return 
 
 
 def cancel(update, context):
@@ -261,6 +286,10 @@ def main():
 
     # dispatcher to register handlers
     dispatcher = updater.dispatcher
+
+    # commands for menu today and tomorrow
+    dispatcher.add_handler(CommandHandler('foodtoday', foodtoday))
+    dispatcher.add_handler(CommandHandler('foodtmr', foodtmr))
     
     # create conversational handler for different states and dispatch it
     conv_handler = ConversationHandler(
