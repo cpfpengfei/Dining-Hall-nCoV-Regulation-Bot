@@ -66,6 +66,12 @@ Buttons and what they mean:
 """
 
 def start(update, context):
+    user = update.message.from_user
+    chatid = update.message.chat_id
+
+    log_text = "User " + str(user.id) + " has started using bot."
+    logger.info(log_text)
+
     reply_text = "Hello!\n\n"
 
     # TODO get STATUS_TEXT by drawing live data from POSTGRESQL 
@@ -110,6 +116,10 @@ def start(update, context):
     log_text = "User " + str(user.id) + " has started using bot."
     logger.info(log_text)
 
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
     return AFTER_START
 
 
