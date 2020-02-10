@@ -252,9 +252,9 @@ def main():
 
     dispatcher.add_handler(CommandHandler('testTakeaway', setTakeawayTimer))
 
-    dispatcher.add_handler(CommandHandler('runMorning', run_morning))
+    dispatcher.add_handler(CommandHandler('runMorning', run_morning, pass_job_queue=True))
 
-    dispatcher.add_handler(CommandHandler('runNight', run_night))
+    dispatcher.add_handler(CommandHandler('runNight', run_night, pass_job_queue=True))
 
     updater.start_polling()
     updater.idle()
