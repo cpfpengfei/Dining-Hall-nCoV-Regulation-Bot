@@ -6,7 +6,7 @@ def run_morning(update, job_queue):
 
 
 def run_night(update, job_queue):
-    job_queue.run_daily(callback_reminder, datetime.time(11, 52, 00), context=update.message.chat_id)
+    job_queue.run_daily(callback_reminder, datetime.time(12, 7, 00), context=update.message.chat_id)
 
 
 def callback_reminder(bot, job):
