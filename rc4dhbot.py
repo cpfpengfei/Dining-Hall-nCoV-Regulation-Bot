@@ -1,10 +1,11 @@
 """
-Ver 0.1: Bare bones structure
+Ver 0.2: Buttons, conversational handlers, and user states 
 """
-from telegram import ParseMode
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
 import os
 import logging
+import emoji
 from leaveNow import setEatinTimer, setTakeawayTimer
 from reminder import run_morning, run_night
 
@@ -22,102 +23,6 @@ logging.basicConfig(
     level = logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Set up INFO_STORE to store user data 
-# TODO Change to FireBase
-INFO_STORE = {}
-POLL_NUMBER = 0
-
-HELP_TEXT = """<b>Press the following commands whenever you execute one of the following actions:</b>
-\n-/start : To restart the bot
-\n\n-/queue : To indicate that you are currently queuing up for food or within the food collection area.
-\n\n-/eatin : To indicate that you are currently eating within the dining hall. 
-\n\n-/leave : To indicate that you have left the dining hall. Regardless if you have collected food or if you have finished eating! 
-"""
-
-def start(update, context):
-    user = update.message.from_user
-    chatid = update.message.chat.id
-
-    log_text = "User " + str(user.id) + " has started using bot."
-    logger.info(log_text)
-
-    reply_text = "Hello!\n\n"
-    # get STATUS_TEXT by drawing live data from firebase 
-    STATUS_TEXT = "<b>Current Status:</b>\n\nNumber of people queueing up for food: X\n\nNumber of people eating in the dining hall: Y"
-    reply_text += STATUS_TEXT
-    reply_text += "\n***************\n"
-    reply_text += HELP_TEXT 
-
-    context.bot.send_message(text = reply_text,
-                            chat_id = chatid,
-                            parse_mode=ParseMode.HTML)
-    return 
-
-
-def queue(update, context):
-    user = update.message.from_user
-    chatid = update.message.chat.id
-
-    log_text = "User " + str(user.id) + " has started queuing up."
-    logger.info(log_text)
-
-    reply_text = "Okay, you are added to the queue, thank you for indicating!\n\n"
-    # get STATUS_TEXT by drawing live data from firebase 
-    STATUS_TEXT = "<b>Current Status:</b>\n\nNumber of people queueing up for food: X\n\nNumber of people eating in the dining hall: Y"
-    reply_text += STATUS_TEXT
-    reply_text += "\n***************\n"
-    reply_text += HELP_TEXT 
-
-    context.bot.send_message(text = reply_text,
-                            chat_id = chatid,
-                            parse_mode=ParseMode.HTML)
-    return 
-
-
-def eatin(update, context):
-    user = update.message.from_user
-    chatid = update.message.chat.id
-
-    log_text = "User " + str(user.id) + " has started queuing up."
-    logger.info(log_text)
-
-    # find out status of this user ID. If ID is in queue status, minus 1 and add 1 to eat in status. 
-
-    reply_text = "Okay, you are added to the number of people currently eating in, thank you for indicating!\n\n"
-    # get STATUS_TEXT by drawing live data from firebase 
-    STATUS_TEXT = "<b>Current Status:</b>\n\nNumber of people queueing up for food: X\n\nNumber of people eating in the dining hall: Y"
-    reply_text += STATUS_TEXT
-    reply_text += "\n***************\n"
-    reply_text += HELP_TEXT 
-
-    context.bot.send_message(text = reply_text,
-                            chat_id = chatid,
-                            parse_mode=ParseMode.HTML)
-    return 
-
-
-def leave(update, context):
-    user = update.message.from_user
-    chatid = update.message.chat.id
-
-    log_text = "User " + str(user.id) + " has started queuing up."
-    logger.info(log_text)
-
-    # find out current status of this user ID and then minus 1 from that status
-
-    reply_text = "Okay, enjoy your day and stay hygienic, thank you for indicating!\n\n"
-    # get STATUS_TEXT by drawing live data from firebase 
-    STATUS_TEXT = "<b>Current Status:</b>\n\nNumber of people queueing up for food: X\n\nNumber of people eating in the dining hall: Y"
-    reply_text += STATUS_TEXT
-    reply_text += "\n***************\n"
-    reply_text += HELP_TEXT 
-
-    context.bot.send_message(text = reply_text,
-                            chat_id = chatid,
-                            parse_mode=ParseMode.HTML)
-    return 
-
-
 # A function to build menu of buttons for every occasion 
 def build_menu(buttons, n_cols, header_buttons, footer_buttons):
     menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
@@ -127,28 +32,183 @@ def build_menu(buttons, n_cols, header_buttons, footer_buttons):
         menu.append(footer_buttons)
     return menu
 
-
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
+###########################################
+
+# Set up INFO_STORE to store user data 
+# TODO Change to FireBase
+INFO_STORE = {}
+POLL_NUMBER = 0
+
+HELP_TEXT = """\n<b>Dining Hall Crowd Regulation</b>
+
+Commands on this bot:
+-/start : To restart the bot
+
+Buttons and what they mean:
+- Enter: Click this button only if you are about to enter the dining hall. 
+- Leave: Click this button if you are currently leaving the dining hall.
+- Dine In: To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins! 
+- Takeaway: To indicate that you are taking away food and not staying to eat inside the dining hall.
+
+"""
+
+def start(update, context):
+    user = update.message.from_user
+    chatid = update.message.chat_id
+
+    log_text = "User " + str(user.id) + " has started using bot."
+    logger.info(log_text)
+
+    reply_text = "Hello!\n\n"
+
+    # get STATUS_TEXT by drawing live data from firebase 
+
+    STATUS_TEXT = "<b>Current Status:</b>\n\nNumber of people queueing up for food: X\n\nNumber of people eating in the dining hall: Y"
+    reply_text += STATUS_TEXT
+    reply_text += "\n***************\n"
+    reply_text += "\nWhat do you wish to do next?\nPress Enter if you are now entering the dining hall!\nPress Help if you need further assistance :)" 
+
+    button_list = [InlineKeyboardButton(text='Enter Dining Hall', callback_data = 'ENTER'),
+                 InlineKeyboardButton(text='Help / About', callback_data = 'HELP')]
+    menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
+
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
+    return AFTER_START
+
+
+# provides a help and about message 
+def send_help(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
+    log_text = "User " + str(user.id) + " is now seeking help."
+    logger.info(log_text)
+
+    reply_text = HELP_TEXT
+
+    button_list = [InlineKeyboardButton(text='Back', callback_data = 'BACKTOSTART')]
+    menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
+
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
+    return AFTER_HELP
+
+
+# when user clicks "Enter Dining Hall"
+def enter_dh(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
+    log_text = "User " + str(user.id) + " has indicated intention to enter DH. Might be a false positive."
+    logger.info(log_text)
+
+    reply_text = "Yumz, time for some good food! Takeaway or dine in?"
+    reply_text += "\n\nOr did you mis-press? You can press Back to go back!"
+
+    button_list = [InlineKeyboardButton(text='Takeaway', callback_data = 'INTENT_0'),
+                InlineKeyboardButton(text='Dine In', callback_data = 'INTENT_1'),
+                InlineKeyboardButton(text='Go Back!', callback_data = 'BACKTOSTART')]
+    menu = build_menu(button_list, n_cols = 2, header_buttons = None, footer_buttons = None)
+
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
+    return AFTER_ENTER
+
+
+# To ask user to indicate if takeaway or in dining hall dining in 
+def indicate_intention(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
+    # get user intention from button pressed 
+    pressed = str(query.data)
+    if pressed == 'INTENT_0':
+        intention = "TAKEAWAY"
+    if pressed == 'INTENT_1':
+        intention = "DINEIN"
+
+    log_text = "User " + str(user.id) + " has indicated to {}.".format(intention)
+    logger.info(log_text)
+
+    reply_text = "Okay! Got it, you wish to {} in the Dining Hall now, can I confirm?".format(intention)
+    reply_text += "\n\nOr did you mis-press? You can cancel the whole process to go back to the start."
+
+    button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data = 'CONFIRM_ENTRY'),
+                InlineKeyboardButton(text='Cancel, please!', callback_data = 'CANCEL')]
+    menu = build_menu(button_list, n_cols = 1, header_buttons = None, footer_buttons = None)
+
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML,
+                            reply_markup = InlineKeyboardMarkup(menu))
+    return CONFIRM_ENTRY
+
+
+# final message and this also triggers the reminder texts to leave the DH later 
+def send_final(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
+    log_text = "User " + str(user.id) + " has now confirmed entry to the DH."
+    logger.info(log_text)
+
+    reply_text = "Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!\n\nI will remind you again to indicate that you are leaving the dining hall!\n\nEnjoy your meal!"
+
+    context.bot.send_message(text = reply_text,
+                            chat_id = chatid,
+                            parse_mode = ParseMode.HTML) # no buttons for final text sent to the user 
+    return 
+
+
+
 def main():   
-    # Telegram bot token from BotFather, very important do not lose it or reveal it:
     TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN'] 
     updater = Updater(TELEGRAM_TOKEN, use_context=True)
 
     # dispatcher to register handlers
     dispatcher = updater.dispatcher
+    
+    # create conversational handler for different states and dispatch it
+    conv_handler = ConversationHandler(
+            entry_points = [CommandHandler('start', start)], 
 
-    # Dispatching the command for /start
-    dispatcher.add_handler(CommandHandler('start', start))
+            states = {
+                AFTER_START: [CallbackQueryHandler(callback = send_help, pattern = '^(HELP)$'),
+                            CallbackQueryHandler(callback = enter_dh, pattern = '^(ENTER)$')],
+                
+                AFTER_HELP: [CallbackQueryHandler(callback = start, pattern = '^(BACKTOSTART)$')],
+                
+                AFTER_ENTER: [CallbackQueryHandler(callback = indicate_intention, pattern = '^(INTENT_)[0-1]{1}$'), # intention either 0 or 1 for takeaway or dine in
+                            CallbackQueryHandler(callback = start, pattern = '^(BACKTOSTART)$')],
 
-    dispatcher.add_handler(CommandHandler('queue', queue))
+                CONFIRM_ENTRY: [CallbackQueryHandler(callback = send_final, pattern = '^(CONFIRM_ENTRY)$'),
+                                CallbackQueryHandler(callback = start, pattern = '^(CANCEL)$')],
+                
+                },
+            allow_reentry = True
+        )
+    dispatcher.add_handler(conv_handler)
 
-    dispatcher.add_handler(CommandHandler('eatin', eatin))
+    # logs all errors 
+    dispatcher.add_error_handler(error)
 
-    dispatcher.add_handler(CommandHandler('leave', leave))
+    # admin commands, if any?
 
     dispatcher.add_handler(CommandHandler('testEatin', setEatinTimer))
 
