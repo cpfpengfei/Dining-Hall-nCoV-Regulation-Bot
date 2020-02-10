@@ -45,7 +45,7 @@ CAMERA = u"\U0001F4F8"
 ###########################################
 
 # Set up states in the conversation
-(AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY) = range(4)
+(AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY, CONFIRM_EXIT) = range(5)
 
 
 ## TODO INITIATE POSTGRESQL HERE 
@@ -224,6 +224,23 @@ def send_final(update, context):
 
     return ConversationHandler.END
 
+# When user leaves dining hall
+def exit(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
+    log_text = "User " + str(user.id) + " has now confirmed exit from DH."
+    logger.info(log_text)
+
+    reply_text = "Thank you for leaving on time! Do remind your friends to do the same as well!"
+
+    context.bot.editMessageText(text = reply_text,
+                                chat_id = chatid,
+                                message_id=query.message.message_id,
+                                parse_mode=ParseMode.HTML)
+
+    return ConversationHandler.END
 
 # reminder function to take temperature
 def callback_reminder(context):
@@ -278,6 +295,7 @@ def main():
                 CONFIRM_ENTRY: [CallbackQueryHandler(callback = send_final, pattern = '^(CONFIRM_ENTRY)$'),
                                 CallbackQueryHandler(callback = start, pattern = '^(CANCEL)$')],
                 
+                CONFIRM_EXIT: [CallbackQueryHandler(callback = exit, pattern = '^(EXIT)$')],
                 },
             fallbacks = [CommandHandler('cancel', cancel)],
             allow_reentry = True
