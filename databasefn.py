@@ -33,10 +33,10 @@ class Database:
         query = 'select count(*) from t'
         self.cur.execute(query)
         res = cur.fetchone()
-        return res[0];
+        return res[0]
         
     def get_late(self):
         query = 'select id from t where timelimit < current_time'
         self.cur.execute(query)
         res = cur.fetchall()
-        return [item for t in res for item in t];
+        return [item for t in res for item in t]

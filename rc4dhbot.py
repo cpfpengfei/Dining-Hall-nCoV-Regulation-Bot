@@ -8,6 +8,8 @@ import os
 import logging
 import datetime
 from sendMenu import getMenuURL
+from databasefn import Database
+
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
 # ██║     ██╔═══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝ 
@@ -53,10 +55,10 @@ BOO = u"\U0001F92C"
 ###########################################
 
 # Set up states in the conversation
-(AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY, CONFIRM_EXIT) = range(5)
+(AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY) = range(4) # CONFIRM_EXIT
 
 ## TODO INITIATE POSTGRESQL HERE
-
+db = Database()
 
 HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
@@ -79,8 +81,7 @@ def start(update, context):
 
     # TODO get STATUS_TEXT by drawing live data from POSTGRESQL 
 
-    STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + QUEUE + "Number of people queueing up for food: X\n\n" \
-                                                             + EAT + "Number of people eating in the dining hall: Y"
+    STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + EAT + "Number of people in Dining Hall: Y"
     reply_text += STATUS_TEXT
     reply_text += "\n**************************************\n"
     reply_text += "\n<b>What do you wish to do next?</b>\n\n" + BUTTON + "Press <i>Enter Dining Hall</i> if you are now entering the dining hall!\n\n" \
@@ -235,7 +236,7 @@ def send_final(update, context):
 
     # TODO POSTGRESQL: GET DATA HERE AND UPDATE DATABASE
 
-    return ConversationHandler.END
+    return 
 
 
 def alarmEatin(context):
@@ -252,7 +253,7 @@ def alarmEatin(context):
     context.bot.send_message(userID,
                             text=EATIN_MESSAGE,
                             reply_markup=InlineKeyboardMarkup(menu))
-    return CONFIRM_EXIT
+    return 
 
 
 def alarmTakeAway(context):
@@ -271,7 +272,7 @@ def alarmTakeAway(context):
                             text=TAKEAWAY_MESSAGE,
                             reply_markup=InlineKeyboardMarkup(menu))
     logger.info("Job context is " + str(job.context))
-    return CONFIRM_EXIT
+    return 
 
 # When user leaves dining hall
 def leave(update, context):    
@@ -375,14 +376,14 @@ def main():
                           CallbackQueryHandler(callback=start, pattern='^(BACKTOSTART)$')],
 
             CONFIRM_ENTRY: [CallbackQueryHandler(callback=send_final, pattern='^(CONFIRM_ENTRY)$'),
-                            CallbackQueryHandler(callback=start, pattern='^(CANCEL)$')],
-
-            CONFIRM_EXIT: [CallbackQueryHandler(callback= leave, pattern='^(EXIT_)[0-9]{1,}$')],
+                            CallbackQueryHandler(callback=start, pattern='^(CANCEL)$')]
         },
         fallbacks=[CommandHandler('cancel', cancel)],
         allow_reentry=True
     )
     dispatcher.add_handler(conv_handler)
+
+    dispatcher.add_handler(CallbackQueryHandler(callback= leave, pattern='^(EXIT_)[0-9]{1,}$')]) # convert callback query handler out from convo
 
     # logs all errors 
     dispatcher.add_error_handler(error)
