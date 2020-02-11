@@ -62,6 +62,8 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 <b>Commands on this bot:</b>
 /start : To restart the bot
+/foodtoday : To get the menu for DH today
+/foodtmr : To get the menu for DH tomorrow
 
 <b>Buttons and what they mean:</b>\n""" + \
             BUTTON + "<i>Enter:</i> Click this button only if you are about to enter the dining hall.\n" + \
@@ -71,6 +73,8 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 
 def start(update, context):
+    # TODO get status of user from POSTGRESQL + if user is already indicated, cannot press start again 
+    
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot." + ROBOT + "\n\n"
 
     # TODO get STATUS_TEXT by drawing live data from POSTGRESQL 
@@ -221,10 +225,10 @@ def send_final(update, context):
     indicatedIntention = context.chat_data['Intention']
     logger.info("Pulled intention is" + indicatedIntention)
     if (indicatedIntention == "TAKEAWAY"):
-        new_job = context.job_queue.run_once(alarmTakeAway, 5, context=chatid)
+        new_job = context.job_queue.run_once(alarmTakeAway, 5, context=user.id) # changed context to userID so as to be not usable in groups
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE-IN"):
-        new_job = context.job_queue.run_once(alarmEatin, 1200, context=chatid)
+        new_job = context.job_queue.run_once(alarmEatin, 1200, context=user.id)
         logger.info("Dining in timer has started")
     else:
         logger.warning("Something went wrong with the intention...")
@@ -235,7 +239,7 @@ def send_final(update, context):
 
 
 # When user leaves dining hall
-def exit(update, context):
+def leave(update, context):
     query = update.callback_query
     user = query.from_user
     chatid = query.message.chat_id
@@ -268,32 +272,38 @@ def callback_reminder(context):
 
 
 def alarmEatin(context):
+    job = context.job
+    userID = job.context 
+    # encode leaving to specific user ID
+    exitID = "EXIT_" + str(userID)
+
     EATIN_MESSAGE = "EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW."
 
-    job = context.job
-    button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data='EXIT')]
+    button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data=exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
-    context.bot.send_message(job.context,
+    context.bot.send_message(userID,
                             text=EATIN_MESSAGE,
                             reply_markup=InlineKeyboardMarkup(menu))
-
     return CONFIRM_EXIT
 
 
 def alarmTakeAway(context):
+    job = context.job
+    userID = job.context 
+    # encode leaving to specific user ID
+    exitID = "EXIT_" + str(userID)
+
     TAKEAWAY_MESSAGE = "EH HELLO! YOU HAVE BEEN IN THE DINING HALL FOR 10 MINUTES. YOU NEED 10 MINUTES TO TAKEAWAY MEH? PLEASE LEAVE NOW." \
                        + BOO + BOO + BOO
 
-    job = context.job
-    button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data='EXIT')]
+    button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
-    context.bot.send_message(job.context,
+    context.bot.send_message(userID,
                             text=TAKEAWAY_MESSAGE,
                             reply_markup=InlineKeyboardMarkup(menu))
     logger.info("Job context is " + str(job.context))
-
     return CONFIRM_EXIT
 
 
@@ -366,7 +376,7 @@ def main():
             CONFIRM_ENTRY: [CallbackQueryHandler(callback=send_final, pattern='^(CONFIRM_ENTRY)$'),
                             CallbackQueryHandler(callback=start, pattern='^(CANCEL)$')],
 
-            CONFIRM_EXIT: [CallbackQueryHandler(callback=exit, pattern='^(EXIT)$')],
+            CONFIRM_EXIT: [CallbackQueryHandler(callback= leave, pattern='^(EXIT_)[0-9]{1,}$')],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
         allow_reentry=True
