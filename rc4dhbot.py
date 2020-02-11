@@ -64,6 +64,9 @@ RUN = u"\U0001F3C3\U0001F3FB"
 ## INITIATE POSTGRESQL HERE
 db = Database()
 
+## Initiate global set 
+REMINDER_QUEUE = {}
+
 #INFOSTORE FOR MAPPING OF USERID TO JOBS
 #INFOSTORE = {}
 
@@ -129,9 +132,22 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML,
                                     reply_markup=InlineKeyboardMarkup(menu))
             # job queue for reminders
-            jobq.run_daily(callback_reminder, datetime.time(17, 15, 00), context=chatid)
-            jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
-            jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid)
+            if 'testjob' in context.chat_data:
+                old_job = context.chat_data['testjob']
+                old_job.schedule_removal()
+            elif 'morningReminder' in context.chat_data:
+                old_job = context.chat_data['morningReminder']
+                old_job.schedule_removal()
+            elif 'eveningReminder' in context.chat_data:
+                old_job = context.chat_data['eveningReminder']
+                old_job.schedule_removal()
+
+            testjob = jobq.run_daily(callback_reminder, datetime.time(17, 15, 00), context=chatid)
+            context.chat_data['testjob'] = testjob
+            morningReminder = jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
+            context.chat_data['morningReminder'] = morningReminder
+            eveningReminder = jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid)
+            context.chat_data['eveningReminder'] = eveningReminder
 
     except AttributeError:  # for Backs entry
         query = update.callback_query
