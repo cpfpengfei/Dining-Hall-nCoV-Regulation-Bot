@@ -353,7 +353,7 @@ def leave(update, context):
     # Remove user from DB
     db.remove(str(user.id))
     INFOSTORE[str(user.id)].schedule_removal()
-    INFOSTORE.remove(str(user.id))
+    del INFOSTORE[str(user.id)]
 
     log_text = "User " + str(user.id) + " has now confirmed exit from DH."
     logger.info(log_text)
