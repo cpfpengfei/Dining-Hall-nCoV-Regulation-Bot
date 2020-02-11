@@ -287,7 +287,7 @@ def leave(update, context):
     user = query.from_user
     chatid = query.message.chat_id
 
-    logger.info("Query data is: ", query.data)
+    logger.info("Query data is: ", str(query.data))
 
     # Remove user from DB
     db.remove(str(user.id))
