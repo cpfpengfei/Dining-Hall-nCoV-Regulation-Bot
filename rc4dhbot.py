@@ -1,5 +1,5 @@
 """
-Ver 1.0: Four key features and database 
+Ver 1.0: Four key features and database
 """
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
@@ -14,12 +14,12 @@ import time
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
-# ██║     ██╔═══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝ 
+# ██║     ██╔═══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝
 # ██║     ██║   ██║██║  ███╗██║  ███╗██║██╔██╗ ██║██║  ███╗
 # ██║     ██║   ██║██║   ██║██║   ██║██║██║╚██╗██║██║   ██║
 # ███████╗╚██████╔╝╚██████╔╝╚██████╔╝██║██║ ╚████║╚██████╔╝
-# ╚══════╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
-#                                                          
+# ╚══════╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝ ╚═════╝
+#
 logging.basicConfig(
     format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
     datefmt="%Y-%m-%d %H:%M:%S",
@@ -84,7 +84,7 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 "Contacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
 
 
-def start(update, context):    
+def start(update, context):
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot. " + ROBOT + "\n\n"
 
     # Get current status from DB
@@ -111,7 +111,7 @@ def start(update, context):
         user = update.message.from_user
         chatid = update.message.chat_id
 
-        # get status of user from POSTGRESQL + if user is already indicated, cannot press /start again 
+        # get status of user from POSTGRESQL + if user is already indicated, cannot press /start again
         userIn = db.checkUser(str(user.id))
         if userIn:
             warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!\n\nTo check the status of the DH currently, press /status."
@@ -167,7 +167,7 @@ def status(update, context):
     return
 
 
-# provides a help and about message 
+# provides a help and about message
 def send_help(update, context):
     query = update.callback_query
     user = query.from_user
@@ -214,13 +214,13 @@ def enter_dh(update, context):
     return AFTER_ENTER
 
 
-# To ask user to indicate if takeaway or in dining hall dining in 
+# To ask user to indicate if takeaway or in dining hall dining in
 def indicate_intention(update, context):
     query = update.callback_query
     user = query.from_user
     chatid = query.message.chat_id
 
-    # get status of user from POSTGRESQL + if user is already indicated, cannot press start again 
+    # get status of user from POSTGRESQL + if user is already indicated, cannot press start again
     userIn = db.checkUser(str(user.id))
     if userIn:
         warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!\n\nTo check the status of the DH currently, press /status."
@@ -230,7 +230,7 @@ def indicate_intention(update, context):
         return ConversationHandler.END # end convo if user pressed start but is in DH
 
     else:
-        # get user intention from button pressed 
+        # get user intention from button pressed
         pressed = str(query.data)
         if pressed == 'INTENT_0':
             intention = "TAKEAWAY"
@@ -259,7 +259,7 @@ def indicate_intention(update, context):
         return CONFIRM_ENTRY
 
 
-# final message and this also triggers the reminder texts to leave the DH later 
+# final message and this also triggers the reminder texts to leave the DH later
 def send_final(update, context):
     query = update.callback_query
     user = query.from_user
@@ -275,7 +275,7 @@ def send_final(update, context):
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
                                 message_id=query.message.message_id,
-                                parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user 
+                                parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user
 
     indicatedIntention = context.chat_data['Intention']
     logger.info("Pulled intention is " + indicatedIntention)
@@ -294,7 +294,7 @@ def send_final(update, context):
     else:
         logger.warning("Something went wrong with the intention...")
 
-    return 
+    return
 
 # a command for user to leave early
 def leaveNow(update, context):
@@ -316,7 +316,7 @@ def leaveNow(update, context):
 
 def alarmEatin(context):
     job = context.job
-    userID = job.context 
+    userID = job.context
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
@@ -339,7 +339,7 @@ def alarmEatin(context):
 
 def alarmTakeAway(context):
     job = context.job
-    userID = job.context 
+    userID = job.context
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
@@ -361,7 +361,7 @@ def alarmTakeAway(context):
 
 
 # When user leaves dining hall
-def leave(update, context):    
+def leave(update, context):
     query = update.callback_query
     user = query.from_user
     chatid = query.message.chat_id
@@ -447,7 +447,7 @@ def cancel(update, context):
 def purge_db():
     logger.info("NOTE: DB HAS BEEN PURGED - DH has closed.")
     db.purge()
-    return 
+    return
 
 def main():
     TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
@@ -457,9 +457,22 @@ def main():
     dispatcher = updater.dispatcher
 
     # schedule to purge the DB
-    schedule.every().day.at("14:10").do(purge_db) # test 
+    schedule.every().day.at("16:40").do(purge_db) # test
     schedule.every().day.at("11:00").do(purge_db) # 11 am for breakfast
     schedule.every().day.at("22:00").do(purge_db) # 10 pm for dinner
+
+    # add thread to run the scheduler
+    cease_continuous_run = threading.Event()
+
+    class ScheduleThread(threading.Thread):
+        @classmethod
+        def run(cls):
+            while not cease_continuous_run.is_set():
+                schedule.run_pending()
+                time.sleep(30)
+
+    continuous_thread = ScheduleThread()
+    continuous_thread.start()
 
     # commands for menu today and tomorrow
     dispatcher.add_handler(CommandHandler('foodtoday', foodtoday))
@@ -495,7 +508,7 @@ def main():
 
     dispatcher.add_handler(CallbackQueryHandler(callback= leave, pattern='^(EXIT_)[0-9]{1,}$')) # convert callback query handler out from convo
 
-    # logs all errors 
+    # logs all errors
     dispatcher.add_error_handler(error)
 
     updater.start_polling()
