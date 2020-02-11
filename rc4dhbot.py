@@ -52,7 +52,7 @@ QUEUE = u"\U0001F46B"
 EAT = u"\U0001F37D"
 HAPPY = u"\U0001F970"
 BOO = u"\U0001F92C"
-RUN = u"\U0001F3C3"
+RUN = u"\U0001F3C3\U0001F3FB"
 ###########################################
 
 # Set up states in the conversation
@@ -295,7 +295,7 @@ def leave(update, context):
     log_text = "User " + str(user.id) + " has now confirmed exit from DH."
     logger.info(log_text)
 
-    reply_text = "Thank you for leaving on time! Do remind your friends to do the same as well!" + HAPPY
+    reply_text = "<b>Thank you for leaving on time! Do remind your friends to do the same as well!</b>" + HAPPY
 
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
