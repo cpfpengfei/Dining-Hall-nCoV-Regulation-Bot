@@ -76,19 +76,25 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
             BUTTON + "<i>Enter:</i> Click this button only if you are about to enter the dining hall.\n" + \
             BUTTON + "<i>Leave:</i> Click this button if you are currently leaving the dining hall.\n" + \
             BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins!\n" + \
-            BUTTON + "<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall."
+            BUTTON + "<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall." + \
+"\n<b>Feedbacks / Wish to contribute?</b>" + \
+"Contacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
 
 
 def start(update, context):    
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot. " + ROBOT + "\n\n"
 
     # Get current status from DB
-    CURRENT_COUNT = db.getCount()
+    DINE_IN_COUNT, TAKEAWAY_COUNT = db.getCount()
+    TOTAL_COUNT = int(DINE_IN_COUNT) + int(TAKEAWAY_COUNT)
 
     STATUS_TEXT = "<b>Current Status of DH:</b>\n" + EAT
-    STATUS_TEXT += "Number of people in Dining Hall: <b>{}</b>".format(str(CURRENT_COUNT))
+    STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
+    STATUS_TEXT += "Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
+    STATUS_TEXT += "Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+
     reply_text += STATUS_TEXT
-    reply_text += "\n**************************************\n"
+    reply_text += "\n\n**************************************\n"
     reply_text += "\n<b>What do you wish to do next?</b>\n\n" + BUTTON + "Press <i>Enter Dining Hall</i> if you are now entering the dining hall!\n\n" \
                   + BUTTON + "Press <i>Help/About</i> if you need further assistance :)"
 
@@ -106,6 +112,7 @@ def start(update, context):
         userIn = db.checkUser(str(user.id))
         if userIn:
             warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!\n\nTo check the status of the DH currently, press /status."
+            warnText += "\n\nNote: If you wish to leave now, you can send in the command - leavenow but with a slash infront."
             context.bot.send_message(text=warnText,
                                     chat_id=user.id,
                                     parse_mode=ParseMode.HTML)
@@ -143,9 +150,13 @@ def status(update, context):
     chatid = update.message.chat_id
 
     # Get current status from DB
-    CURRENT_COUNT = db.getCount()
+    DINE_IN_COUNT, TAKEAWAY_COUNT = db.getCount()
+    TOTAL_COUNT = int(DINE_IN_COUNT) + int(TAKEAWAY_COUNT)
+
     STATUS_TEXT = "<b>Current Status of DH:</b>\n" + EAT
-    STATUS_TEXT += "Number of people in Dining Hall: <b>{}</b>".format(str(CURRENT_COUNT))
+    STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
+    STATUS_TEXT += "Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
+    STATUS_TEXT += "Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
 
     context.bot.send_message(text=STATUS_TEXT,
                              chat_id=chatid,
@@ -304,15 +315,20 @@ def alarmEatin(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    EATIN_MESSAGE = "<b>Hi, you have been in the Dining Hall for 25 minutes. Please leave now!</b>" + RUN + "\n"
+    EATIN_MESSAGE = "<b>Hi, you have been in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
 
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data=exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
-    context.bot.send_message(userID,
-                            text=EATIN_MESSAGE,
-                            reply_markup=InlineKeyboardMarkup(menu),
-                             parse_mode=ParseMode.HTML)
+    userIn = db.checkUser(str(userID))
+    if userIn:
+        logger.info("Reminder text for takeaway has been sent to the user {}".format(str(userID)))
+        context.bot.send_message(userID,
+                                text=EATIN_MESSAGE,
+                                reply_markup=InlineKeyboardMarkup(menu),
+                                parse_mode=ParseMode.HTML)
+    else:     # if user has left early
+        logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
     return 
 
 
@@ -322,17 +338,22 @@ def alarmTakeAway(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    TAKEAWAY_MESSAGE = "<b>Hi, you have been in the Dining Hall for 7 minutes! Don't take too long to takeaway - Please leave now!</b>" + RUN + "\n"
+    TAKEAWAY_MESSAGE = "<b>Hi, you have been in the Dining Hall for 7 minutes to takeaway food. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
 
     button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
-    context.bot.send_message(userID,
-                            text=TAKEAWAY_MESSAGE,
-                            reply_markup=InlineKeyboardMarkup(menu),
-                             parse_mode=ParseMode.HTML)
-    logger.info("Job context is " + str(job.context))
+    userIn = db.checkUser(str(userID))
+    if userIn:
+        logger.info("Reminder text for takeaway has been sent to the user {}".format(str(userID)))
+        context.bot.send_message(userID,
+                                text=TAKEAWAY_MESSAGE,
+                                reply_markup=InlineKeyboardMarkup(menu),
+                                parse_mode=ParseMode.HTML)
+    else:     # if user has left early
+        logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
     return 
+
 
 # When user leaves dining hall
 def leave(update, context):    
