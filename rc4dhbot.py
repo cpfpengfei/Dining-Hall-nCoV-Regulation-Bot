@@ -1,5 +1,5 @@
 """
-Ver 1.0: Four key features and database
+Ver 1.1
 """
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
@@ -11,6 +11,7 @@ from sendMenu import getMenuURL
 from databasefn import Database
 import schedule
 import time
+import threading
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
