@@ -81,8 +81,8 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
             BUTTON + "<i>Leave:</i> Click this button if you are currently leaving the dining hall.\n" + \
             BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins!\n" + \
             BUTTON + "<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall." + \
-"\n<b>Feedbacks / Wish to contribute?</b>" + \
-"Contacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
+"\n\b<b>Feedbacks / Wish to contribute?</b>" + \
+"\nContacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
 
 
 def start(update, context):
@@ -92,10 +92,10 @@ def start(update, context):
     DINE_IN_COUNT, TAKEAWAY_COUNT = db.getCount()
     TOTAL_COUNT = int(DINE_IN_COUNT) + int(TAKEAWAY_COUNT)
 
-    STATUS_TEXT = "<b>Current Status of DH:</b>\n" + EAT
+    STATUS_TEXT = "<b>Current Status of DH:</b>\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
-    STATUS_TEXT += "\nDining In: <b>{}</b>".format(str(DINE_IN_COUNT))
-    STATUS_TEXT += "\nTaking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
+    STATUS_TEXT += "\n" + QUEUE + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
 
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
@@ -157,11 +157,11 @@ def status(update, context):
     DINE_IN_COUNT, TAKEAWAY_COUNT = db.getCount()
     TOTAL_COUNT = int(DINE_IN_COUNT) + int(TAKEAWAY_COUNT)
 
-    STATUS_TEXT = "<b>Current Status of DH:</b>\n" + EAT
+    STATUS_TEXT = "<b>Current Status of DH:</b>\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
-    STATUS_TEXT += "\nDining In: <b>{}</b>".format(str(DINE_IN_COUNT))
-    STATUS_TEXT += "\nTaking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
-
+    STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
+    STATUS_TEXT += "\n" + QUEUE + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    
     context.bot.send_message(text=STATUS_TEXT,
                              chat_id=chatid,
                              parse_mode=ParseMode.HTML)
@@ -283,7 +283,7 @@ def send_final(update, context):
     if (indicatedIntention == "TAKEAWAY"):
         # Add user to DB for takeaway
         db.addTakeAwayUser(str(user.id))
-        new_job = context.job_queue.run_once(alarmTakeAway, 60, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
+        new_job = context.job_queue.run_once(alarmTakeAway, 420, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE-IN"):
@@ -321,7 +321,7 @@ def alarmEatin(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    EATIN_MESSAGE = "<b>Hi, you have been in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
+    EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
 
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data=exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
@@ -344,7 +344,7 @@ def alarmTakeAway(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    TAKEAWAY_MESSAGE = "<b>Hi, you have been in the Dining Hall for 7 minutes to takeaway food. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
+    TAKEAWAY_MESSAGE = "<b>Hi, you have been in the Dining Hall for 7 minutes to take away food. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
 
     button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
