@@ -52,6 +52,7 @@ QUEUE = u"\U0001F46B"
 EAT = u"\U0001F37D"
 HAPPY = u"\U0001F970"
 BOO = u"\U0001F92C"
+RUN = u"\U0001F3C3\U0001F3FB"
 ###########################################
 
 # Set up states in the conversation
@@ -265,14 +266,15 @@ def alarmEatin(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    EATIN_MESSAGE = "EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW."
+    EATIN_MESSAGE = "<b>EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW.</b>" + RUN
 
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data=exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
     context.bot.send_message(userID,
                             text=EATIN_MESSAGE,
-                            reply_markup=InlineKeyboardMarkup(menu))
+                            reply_markup=InlineKeyboardMarkup(menu),
+                             parse_mode=ParseMode.HTML)
     return 
 
 
@@ -282,15 +284,16 @@ def alarmTakeAway(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    TAKEAWAY_MESSAGE = "EH HELLO! YOU HAVE BEEN IN THE DINING HALL FOR 10 MINUTES. YOU NEED 10 MINUTES TO TAKEAWAY MEH? PLEASE LEAVE NOW." \
-                       + BOO + BOO + BOO
+    TAKEAWAY_MESSAGE = "<b>EH HELLO! YOU HAVE BEEN IN THE DINING HALL FOR 10 MINUTES. YOU NEED 10 MINUTES TO TAKEAWAY MEH? PLEASE LEAVE NOW.</b>" \
+                       + RUN
 
     button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
     context.bot.send_message(userID,
                             text=TAKEAWAY_MESSAGE,
-                            reply_markup=InlineKeyboardMarkup(menu))
+                            reply_markup=InlineKeyboardMarkup(menu),
+                             parse_mode=ParseMode.HTML)
     logger.info("Job context is " + str(job.context))
     return 
 
@@ -308,7 +311,7 @@ def leave(update, context):
     log_text = "User " + str(user.id) + " has now confirmed exit from DH."
     logger.info(log_text)
 
-    reply_text = "Thank you for leaving on time! Do remind your friends to do the same as well!" + HAPPY
+    reply_text = "<b>Thank you for leaving on time! Do remind your friends to do the same as well!</b>" + HAPPY
 
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,

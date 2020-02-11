@@ -15,7 +15,7 @@ class Database:
         self.cur.execute("CREATE TABLE t(id varchar(255), timelimit time);")
 
     def purge(self):
-        self.cur.execute("DELETE FROM t")
+        self.cur.execute("DELETE FROM t;")
 
     def addTakeAwayUser(self,id):
         query = "INSERT INTO t(id,timelimit) VALUES('{}',current_time + time '{}');".format(id, self.TAKEAWAY_TIME_LIMIT)
@@ -29,14 +29,20 @@ class Database:
         query = "DELETE FROM t where id='{}';".format(id)
         self.cur.execute(query)
 
-    def get_count(self):
-        query = 'select count(*) from t'
+    def getCount(self):
+        query = 'select count(*) from t;'
         self.cur.execute(query)
-        res = cur.fetchone()
+        res = self.cur.fetchone()
         return res[0]
-        
-    def get_late(self):
-        query = 'select id from t where timelimit < current_time'
+
+    def checkUser(self,id):
+        query = "select count(*) from t where id = '{}';".format(id);
         self.cur.execute(query)
-        res = cur.fetchall()
+        res = self.cur.fetchone()
+        return res[0] >= 1
+
+    def getLate(self):
+        query = 'select id from t where timelimit < current_time;'
+        self.cur.execute(query)
+        res = self.cur.fetchall()
         return [item for t in res for item in t]
