@@ -257,6 +257,7 @@ def send_final(update, context):
     reply_text = "Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!\n\n" \
                  "I will remind you again to indicate that you are leaving the dining hall!\n\n" + EAT + " Enjoy your meal! " + EAT
 
+    reply_text += "\n\nNote: If you wish to leave now, you can send in the command: leavenow but with a slash infront."
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
                                 message_id=query.message.message_id,
@@ -276,8 +277,26 @@ def send_final(update, context):
         logger.info("Dining in timer has started")
     else:
         logger.warning("Something went wrong with the intention...")
+
     return 
 
+# a command for user to leave early
+def leaveNow(update, context):
+    user = update.message.from_user
+    chatid = update.message.chat_id
+    reply_text = "<b>Are you sure you are leaving the Dining Hall now?</b>\n"
+
+    # encode leaving to specific user ID
+    exitID = "EXIT_" + str(user.id)
+
+    button_list = [InlineKeyboardButton(text='Yes, Leave Dining Hall', callback_data = exitID)]
+    menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
+
+    context.bot.send_message(chatid,
+                            text=TAKEAWAY_MESSAGE,
+                            reply_markup=InlineKeyboardMarkup(menu),
+                             parse_mode=ParseMode.HTML)
+    return
 
 def alarmEatin(context):
     job = context.job
@@ -322,8 +341,7 @@ def leave(update, context):
     user = query.from_user
     chatid = query.message.chat_id
 
-    current_data = query.data[0]
-    logger.info("Query data is: ", str(current_data))
+    logger.info("Query data is: {}".format(str(query.data)))
 
     # Remove user from DB
     db.remove(str(user.id))
@@ -420,6 +438,9 @@ def main():
 
     # Individual command to get status text only
     dispatcher.add_handler(CommandHandler('status', status))
+
+    # Individual command to leave in advance
+    dispatcher.add_handler(CommandHandler('leavenow', leaveNow))
 
     # create conversational handler for different states and dispatch it
     conv_handler = ConversationHandler(
