@@ -292,7 +292,7 @@ def alarmTakeAway(context):
     context.bot.send_message(job.context,
                             text=TAKEAWAY_MESSAGE,
                             reply_markup=InlineKeyboardMarkup(menu))
-    logger.info("Job context is " + job.context)
+    logger.info("Job context is " + str(job.context))
 
     return CONFIRM_EXIT
 
