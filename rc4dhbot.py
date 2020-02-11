@@ -94,8 +94,8 @@ def start(update, context):
 
     STATUS_TEXT = "<b>Current Status of DH:</b>\n" + EAT
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
-    STATUS_TEXT += "Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
-    STATUS_TEXT += "Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "\nDining In: <b>{}</b>".format(str(DINE_IN_COUNT))
+    STATUS_TEXT += "\nTaking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
 
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
@@ -159,8 +159,8 @@ def status(update, context):
 
     STATUS_TEXT = "<b>Current Status of DH:</b>\n" + EAT
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
-    STATUS_TEXT += "Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
-    STATUS_TEXT += "Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "\nDining In: <b>{}</b>".format(str(DINE_IN_COUNT))
+    STATUS_TEXT += "\nTaking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
 
     context.bot.send_message(text=STATUS_TEXT,
                              chat_id=chatid,
