@@ -57,9 +57,10 @@ BOO = u"\U0001F92C"
 # Set up states in the conversation
 (AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY) = range(4) # CONFIRM_EXIT
 
-## TODO INITIATE POSTGRESQL HERE
+## INITIATE POSTGRESQL HERE
 db = Database()
 
+# help text
 HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 <b>Commands on this bot:</b>
@@ -79,9 +80,11 @@ def start(update, context):
     
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot." + ROBOT + "\n\n"
 
-    # TODO get STATUS_TEXT by drawing live data from POSTGRESQL 
+    # Get current status from DB
+    CURRENT_COUNT = db.get_count()
 
-    STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + EAT + "Number of people in Dining Hall: Y"
+    STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + EAT
+    STATUS_TEXT += "Number of people in Dining Hall: {}".format(str(CURRENT_COUNT))
     reply_text += STATUS_TEXT
     reply_text += "\n**************************************\n"
     reply_text += "\n<b>What do you wish to do next?</b>\n\n" + BUTTON + "Press <i>Enter Dining Hall</i> if you are now entering the dining hall!\n\n" \
@@ -226,16 +229,17 @@ def send_final(update, context):
     indicatedIntention = context.chat_data['Intention']
     logger.info("Pulled intention is" + indicatedIntention)
     if (indicatedIntention == "TAKEAWAY"):
+        # Add user to DB for takeaway
+        db.addTakeAwayUser(str(user.id))
         new_job = context.job_queue.run_once(alarmTakeAway, 5, context=user.id) # changed context to userID so as to be not usable in groups
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE-IN"):
+        # Add user to DB for dine-in
+        db.addDineInUser(str(user.id))
         new_job = context.job_queue.run_once(alarmEatin, 1200, context=user.id)
         logger.info("Dining in timer has started")
     else:
         logger.warning("Something went wrong with the intention...")
-
-    # TODO POSTGRESQL: GET DATA HERE AND UPDATE DATABASE
-
     return 
 
 
@@ -281,6 +285,9 @@ def leave(update, context):
     chatid = query.message.chat_id
 
     logger.info("Query data is: ", query.data)
+
+    # Remove user from DB
+    db.remove(str(user.id))
 
     log_text = "User " + str(user.id) + " has now confirmed exit from DH."
     logger.info(log_text)
@@ -357,6 +364,8 @@ def main():
     # dispatcher to register handlers
     dispatcher = updater.dispatcher
 
+    # TODO jobqueue to purge the DB
+
     # commands for menu today and tomorrow
     dispatcher.add_handler(CommandHandler('foodtoday', foodtoday))
     dispatcher.add_handler(CommandHandler('foodtmr', foodtmr))
@@ -383,7 +392,7 @@ def main():
     )
     dispatcher.add_handler(conv_handler)
 
-    dispatcher.add_handler(CallbackQueryHandler(callback= leave, pattern='^(EXIT_)[0-9]{1,}$')]) # convert callback query handler out from convo
+    dispatcher.add_handler(CallbackQueryHandler(callback= leave, pattern='^(EXIT_)[0-9]{1,}$')) # convert callback query handler out from convo
 
     # logs all errors 
     dispatcher.add_error_handler(error)
