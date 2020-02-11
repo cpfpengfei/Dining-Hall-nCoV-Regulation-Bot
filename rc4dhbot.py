@@ -52,16 +52,16 @@ CAMERA = u"\U0001F4F8"
 
 
 
-HELP_TEXT = """\n<b>Dining Hall Crowd Regulation</b>
+HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
-Commands on this bot:
--/start : To restart the bot
+<b>Commands on this bot:</b>
+/start : To restart the bot
 
-Buttons and what they mean:
-- Enter: Click this button only if you are about to enter the dining hall. 
-- Leave: Click this button if you are currently leaving the dining hall.
-- Dine In: To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins! 
-- Takeaway: To indicate that you are taking away food and not staying to eat inside the dining hall.
+<b>Buttons and what they mean:</b>
+<i>Enter:</i> Click this button only if you are about to enter the dining hall. 
+<i>Leave:</i> Click this button if you are currently leaving the dining hall.
+<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins! 
+<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall.
 
 """
 
