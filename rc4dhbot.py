@@ -76,12 +76,19 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 
 def start(update, context):
-    # TODO get status of user from POSTGRESQL + if user is already indicated, cannot press start again 
+    # get status of user from POSTGRESQL + if user is already indicated, cannot press start again 
+    userIn = db.checkUser(str(user.id))
+    if userIn:
+        warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!"
+        context.bot.send_message(text=warnText,
+                                 chat_id=user.id,
+                                 parse_mode=ParseMode.HTML)
+        return ConversationHandler.END # end convo if user pressed start but is in DH
     
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot." + ROBOT + "\n\n"
 
     # Get current status from DB
-    CURRENT_COUNT = db.get_count()
+    CURRENT_COUNT = db.getCount()
 
     STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + EAT
     STATUS_TEXT += "Number of people in Dining Hall: {}".format(str(CURRENT_COUNT))
@@ -174,6 +181,15 @@ def enter_dh(update, context):
 
 # To ask user to indicate if takeaway or in dining hall dining in 
 def indicate_intention(update, context):
+    # get status of user from POSTGRESQL + if user is already indicated, cannot press start again 
+    userIn = db.checkUser(str(user.id))
+    if userIn:
+        warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!"
+        context.bot.editMessageText(text=warnText,
+                                    chat_id=user.id,
+                                    parse_mode=ParseMode.HTML)
+        return ConversationHandler.END # end convo if user pressed start but is in DH
+
     query = update.callback_query
     user = query.from_user
     chatid = query.message.chat_id
@@ -357,6 +373,11 @@ def cancel(update, context):
     return ConversationHandler.END
 
 
+def purge_db():
+    logger.info("DB HAS BEEN PURGED - DH has closed.")
+    db.purge()
+    return 
+
 def main():
     TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
     updater = Updater(TELEGRAM_TOKEN, use_context=True)
@@ -364,7 +385,11 @@ def main():
     # dispatcher to register handlers
     dispatcher = updater.dispatcher
 
-    # TODO jobqueue to purge the DB
+    # jobqueue to purge the DB
+    purge_queue = updater.job_queue    
+    purge_queue.run_daily(purge_db, datetime.time(12, 40, 00)) # test purge
+    purge_queue.run_daily(purge_db, datetime.time(11, 00, 00)) # 11 am for breakfast
+    purge_queue.run_daily(purge_db, datetime.time(22, 00, 00)) # 10 pm for dinner 
 
     # commands for menu today and tomorrow
     dispatcher.add_handler(CommandHandler('foodtoday', foodtoday))
