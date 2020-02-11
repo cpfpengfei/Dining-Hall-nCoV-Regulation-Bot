@@ -29,13 +29,19 @@ class Database:
         query = "DELETE FROM t where id='{}';".format(id)
         self.cur.execute(query)
 
-    def get_count(self):
+    def getCount(self):
         query = 'select count(*) from t'
         self.cur.execute(query)
         res = self.cur.fetchone()
         return res[0]
 
-    def get_late(self):
+    def checkUser(self,id):
+        query = "select count(*) from t where id = '{}'".format(id);
+        self.cur.execute(query)
+        res = self.cur.fetchone()
+        return res[0] >= 1
+
+    def getLate(self):
         query = 'select id from t where timelimit < current_time'
         self.cur.execute(query)
         res = self.cur.fetchall()
