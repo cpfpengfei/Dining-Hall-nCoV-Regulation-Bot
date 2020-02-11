@@ -63,7 +63,7 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 <b>Commands on this bot:</b>
 /start : To restart the bot
 
-<b>Buttons and what they mean:</b>\n """ + \
+<b>Buttons and what they mean:</b>\n""" + \
             BUTTON + "<i>Enter:</i> Click this button only if you are about to enter the dining hall.\n" + \
             BUTTON + "<i>Leave:</i> Click this button if you are currently leaving the dining hall.\n" + \
             BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins!\n" + \
@@ -148,7 +148,7 @@ def enter_dh(update, context):
     log_text = "User " + str(user.id) + " has indicated intention to enter DH. Might be a false positive."
     logger.info(log_text)
 
-    reply_text = "Yumz, time for some good food! " + EAT + "Now, please select whether you would like to <b>takeaway</b> or <b>dine-in</b>?"
+    reply_text = "Yumz, time for some good food!\n" + EAT + "Now, please select whether you would like to <b>takeaway</b> or <b>dine-in</b>?"
     reply_text += "\n\nOr did you mis-press? You can press <i>Back</i> to go back!"
 
     button_list = [InlineKeyboardButton(text='Takeaway', callback_data='INTENT_0'),
@@ -223,7 +223,7 @@ def send_final(update, context):
     if (indicatedIntention == "TAKEAWAY"):
         new_job = context.job_queue.run_once(alarmTakeAway, 5, context=chatid)
         logger.info("Takeaway timer has started")
-    elif (indicatedIntention == "DINE IN"):
+    elif (indicatedIntention == "DINE-IN"):
         new_job = context.job_queue.run_once(alarmEatin, 1200, context=chatid)
         logger.info("Dining in timer has started")
     else:
