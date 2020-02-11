@@ -132,7 +132,7 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML,
                                     reply_markup=InlineKeyboardMarkup(menu))
 
-            REMINDER_QUEUE.add(str(user.id))
+            #REMINDER_QUEUE.add(str(user.id))
 
             # job queue for reminders
             if 'testjob' in context.chat_data:
@@ -145,7 +145,7 @@ def start(update, context):
                 old_job = context.chat_data['eveningReminder']
                 old_job.schedule_removal()
 
-            testjob = jobq.run_daily(callback_reminder, datetime.time(17, 40, 00), context=chatid)
+            testjob = jobq.run_daily(callback_reminder, datetime.time(17, 46, 00), context=chatid)
             context.chat_data['testjob'] = testjob
             morningReminder = jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
             context.chat_data['morningReminder'] = morningReminder
