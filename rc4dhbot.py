@@ -82,6 +82,7 @@ def start(update, context):
 
     # Get current status from DB
     #CURRENT_COUNT = db.get_count()
+    CURRENT_COUNT = 1
 
     STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + EAT
     STATUS_TEXT += "Number of people in Dining Hall: {}".format(str(CURRENT_COUNT))
