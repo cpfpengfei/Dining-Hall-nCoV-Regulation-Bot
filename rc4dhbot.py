@@ -131,23 +131,26 @@ def start(update, context):
                                     chat_id=chatid,
                                     parse_mode=ParseMode.HTML,
                                     reply_markup=InlineKeyboardMarkup(menu))
-            # job queue for reminders
-            if 'testjob' in context.chat_data:
-                old_job = context.chat_data['testjob']
-                old_job.schedule_removal()
-            elif 'morningReminder' in context.chat_data:
-                old_job = context.chat_data['morningReminder']
-                old_job.schedule_removal()
-            elif 'eveningReminder' in context.chat_data:
-                old_job = context.chat_data['eveningReminder']
-                old_job.schedule_removal()
 
-            testjob = jobq.run_daily(callback_reminder, datetime.time(17, 15, 00), context=chatid)
-            context.chat_data['testjob'] = testjob
-            morningReminder = jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
-            context.chat_data['morningReminder'] = morningReminder
-            eveningReminder = jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid)
-            context.chat_data['eveningReminder'] = eveningReminder
+            REMINDER_QUEUE.add(str(user.id))
+            
+            # # job queue for reminders
+            # if 'testjob' in context.chat_data:
+            #     old_job = context.chat_data['testjob']
+            #     old_job.schedule_removal()
+            # elif 'morningReminder' in context.chat_data:
+            #     old_job = context.chat_data['morningReminder']
+            #     old_job.schedule_removal()
+            # elif 'eveningReminder' in context.chat_data:
+            #     old_job = context.chat_data['eveningReminder']
+            #     old_job.schedule_removal()
+
+            # testjob = jobq.run_daily(callback_reminder, datetime.time(17, 15, 00), context=chatid)
+            # context.chat_data['testjob'] = testjob
+            # morningReminder = jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
+            # context.chat_data['morningReminder'] = morningReminder
+            # eveningReminder = jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid)
+            # context.chat_data['eveningReminder'] = eveningReminder
 
     except AttributeError:  # for Backs entry
         query = update.callback_query
@@ -475,7 +478,6 @@ def main():
     dispatcher = updater.dispatcher
 
     # schedule to purge the DB
-    schedule.every().day.at("16:40").do(purge_db) # test
     schedule.every().day.at("11:00").do(purge_db) # 11 am for breakfast
     schedule.every().day.at("22:00").do(purge_db) # 10 pm for dinner
 
