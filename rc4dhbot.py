@@ -64,9 +64,6 @@ RUN = u"\U0001F3C3\U0001F3FB"
 ## INITIATE POSTGRESQL HERE
 db = Database()
 
-## Initiate global set 
-REMINDER_QUEUE = {}
-
 #INFOSTORE FOR MAPPING OF USERID TO JOBS
 #INFOSTORE = {}
 
@@ -84,9 +81,8 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
             BUTTON + "<i>Leave:</i> Click this button if you are currently leaving the dining hall.\n" + \
             BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins!\n" + \
             BUTTON + "<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall." + \
-"\n\b<b>Feedbacks / Wish to contribute?</b>" + \
+"\n\n<b>Feedbacks / Wish to contribute?</b>" + \
 "\nContacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
-
 
 def start(update, context):
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot. " + ROBOT + "\n\n"
