@@ -283,7 +283,7 @@ def send_final(update, context):
     if (indicatedIntention == "TAKEAWAY"):
         # Add user to DB for takeaway
         db.addTakeAwayUser(str(user.id))
-        new_job = context.job_queue.run_once(alarmTakeAway, 420, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
+        new_job = context.job_queue.run_once(alarmTakeAway, 60, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE-IN"):
