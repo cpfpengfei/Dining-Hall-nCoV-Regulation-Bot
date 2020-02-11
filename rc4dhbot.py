@@ -274,8 +274,9 @@ def alarmEatin(context):
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data='EXIT')]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
-    context.bot.send_message(text=EATIN_MESSAGE,
-                             reply_markup=InlineKeyboardMarkup(menu))
+    context.bot.send_message(job.context,
+                            text=EATIN_MESSAGE,
+                            reply_markup=InlineKeyboardMarkup(menu))
 
     return CONFIRM_EXIT
 
@@ -288,8 +289,10 @@ def alarmTakeAway(context):
     button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data='EXIT')]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
-    context.bot.send_message(text=TAKEAWAY_MESSAGE,
-                             reply_markup=InlineKeyboardMarkup(menu))
+    context.bot.send_message(job.context,
+                            text=TAKEAWAY_MESSAGE,
+                            reply_markup=InlineKeyboardMarkup(menu))
+    logger.info("Job context is " + job.context)
 
     return CONFIRM_EXIT
 
