@@ -9,6 +9,8 @@ import logging
 import datetime
 from sendMenu import getMenuURL
 from databasefn import Database
+import schedule
+import time
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
@@ -380,7 +382,7 @@ def cancel(update, context):
 
 
 def purge_db():
-    logger.info("DB HAS BEEN PURGED - DH has closed.")
+    logger.info("NOTE: DB HAS BEEN PURGED - DH has closed.")
     db.purge()
     return 
 
@@ -391,11 +393,11 @@ def main():
     # dispatcher to register handlers
     dispatcher = updater.dispatcher
 
-    # jobqueue to purge the DB
-    purge_queue = updater.job_queue    
-    purge_queue.run_daily(purge_db, datetime.time(12, 40, 00)) # test purge
-    purge_queue.run_daily(purge_db, datetime.time(11, 00, 00)) # 11 am for breakfast
-    purge_queue.run_daily(purge_db, datetime.time(22, 00, 00)) # 10 pm for dinner 
+    # schedule to purge the DB
+    schedule.every().day.at("12:55").do(purge_db) # test 
+    schedule.every().day.at("13:30").do(purge_db) # test 
+    schedule.every().day.at("11:00").do(purge_db) # 11 am for breakfast
+    schedule.every().day.at("22:00").do(purge_db) # 10 pm for dinner
 
     # commands for menu today and tomorrow
     dispatcher.add_handler(CommandHandler('foodtoday', foodtoday))
