@@ -129,6 +129,7 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML,
                                     reply_markup=InlineKeyboardMarkup(menu))
             # job queue for reminders
+            jobq.run_daily(callback_reminder, datetime.time(17, 15, 00), context=chatid)
             jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
             jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid)
 
