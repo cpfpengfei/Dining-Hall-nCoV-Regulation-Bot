@@ -426,7 +426,7 @@ def main():
     dispatcher = updater.dispatcher
 
     # schedule to purge the DB
-    schedule.every().day.at("13:50").do(purge_db) # test 
+    schedule.every().day.at("14:10").do(purge_db) # test 
     schedule.every().day.at("11:00").do(purge_db) # 11 am for breakfast
     schedule.every().day.at("22:00").do(purge_db) # 10 pm for dinner
 
