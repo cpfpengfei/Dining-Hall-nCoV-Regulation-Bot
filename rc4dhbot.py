@@ -81,8 +81,7 @@ def start(update, context):
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot." + ROBOT + "\n\n"
 
     # Get current status from DB
-    #CURRENT_COUNT = db.get_count()
-    CURRENT_COUNT = 1
+    CURRENT_COUNT = db.get_count()
 
     STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + EAT
     STATUS_TEXT += "Number of people in Dining Hall: {}".format(str(CURRENT_COUNT))
@@ -231,12 +230,12 @@ def send_final(update, context):
     logger.info("Pulled intention is" + indicatedIntention)
     if (indicatedIntention == "TAKEAWAY"):
         # Add user to DB for takeaway
-        #db.addTakeAwayUser(str(user.id))
+        db.addTakeAwayUser(str(user.id))
         new_job = context.job_queue.run_once(alarmTakeAway, 5, context=user.id) # changed context to userID so as to be not usable in groups
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
-        #db.addDineInUser(str(user.id))
+        db.addDineInUser(str(user.id))
         new_job = context.job_queue.run_once(alarmEatin, 1200, context=user.id)
         logger.info("Dining in timer has started")
     else:
@@ -288,7 +287,7 @@ def leave(update, context):
     logger.info("Query data is: ", str(query.data))
 
     # Remove user from DB
-    #db.remove(str(user.id))
+    db.remove(str(user.id))
 
     log_text = "User " + str(user.id) + " has now confirmed exit from DH."
     logger.info(log_text)
