@@ -347,13 +347,13 @@ def leave(update, context):
 
     logger.info("Query data is: {}".format(str(query.data)))
 
-    # Check Job Queue
-    logger.info("Job Queue is: {}".format(context.job_queue.jobs()))
-
     # Remove user from DB
     db.remove(str(user.id))
     INFOSTORE[str(user.id)].schedule_removal()
     del INFOSTORE[str(user.id)]
+
+    # Check Job Queue
+    logger.info("Job Queue is: {}".format(context.job_queue.jobs()))
 
     log_text = "User " + str(user.id) + " has now confirmed exit from DH."
     logger.info(log_text)
