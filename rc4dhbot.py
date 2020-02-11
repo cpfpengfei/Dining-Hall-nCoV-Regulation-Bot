@@ -63,7 +63,7 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 <b>Commands on this bot:</b>
 /start : To restart the bot
 
-<b>Buttons and what they mean:</b>" """ + \
+<b>Buttons and what they mean:</b>\n """ + \
             BUTTON + "<i>Enter:</i> Click this button only if you are about to enter the dining hall.\n" + \
             BUTTON + "<i>Leave:</i> Click this button if you are currently leaving the dining hall.\n" + \
             BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins!\n" + \
@@ -78,7 +78,7 @@ def start(update, context):
     STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + QUEUE + "Number of people queueing up for food: X\n\n" \
                                                              + EAT + "Number of people eating in the dining hall: Y"
     reply_text += STATUS_TEXT
-    reply_text += "\n******************************\n"
+    reply_text += "\n**************************************\n"
     reply_text += "\n<b>What do you wish to do next?</b>\n\n" + BUTTON + "Press <i>Enter Dining Hall</i> if you are now entering the dining hall!\n\n" \
                   + BUTTON + "Press <i>Help/About</i> if you need further assistance :)"
 
@@ -148,7 +148,7 @@ def enter_dh(update, context):
     log_text = "User " + str(user.id) + " has indicated intention to enter DH. Might be a false positive."
     logger.info(log_text)
 
-    reply_text = "Yumz, time for some good food!" + EAT + "Now, please select whether you would like to <b>takeaway</b> or <b>dine-in</b>?"
+    reply_text = "Yumz, time for some good food! " + EAT + "Now, please select whether you would like to <b>takeaway</b> or <b>dine-in</b>?"
     reply_text += "\n\nOr did you mis-press? You can press <i>Back</i> to go back!"
 
     button_list = [InlineKeyboardButton(text='Takeaway', callback_data='INTENT_0'),
@@ -211,7 +211,7 @@ def send_final(update, context):
     logger.info(log_text)
 
     reply_text = "Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!\n\n" \
-                 "I will remind you again to indicate that you are leaving the dining hall!\n\n" + EAT + "Enjoy your meal!" + EAT
+                 "I will remind you again to indicate that you are leaving the dining hall!\n\n" + EAT + " Enjoy your meal! " + EAT
 
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
