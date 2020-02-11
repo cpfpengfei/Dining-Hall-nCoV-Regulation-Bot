@@ -238,39 +238,6 @@ def send_final(update, context):
     return ConversationHandler.END
 
 
-# When user leaves dining hall
-def leave(update, context):
-    query = update.callback_query
-    user = query.from_user
-    chatid = query.message.chat_id
-
-    log_text = "User " + str(user.id) + " has now confirmed exit from DH."
-    logger.info(log_text)
-
-    reply_text = "Thank you for leaving on time! Do remind your friends to do the same as well!" + HAPPY
-
-    context.bot.editMessageText(text=reply_text,
-                                chat_id=chatid,
-                                message_id=query.message.message_id,
-                                parse_mode=ParseMode.HTML)
-
-    return ConversationHandler.END
-
-
-# Feature 3: Reminder function to take temperature
-def callback_reminder(context):
-    REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
-                    "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
-                    "For those who do not have thermometers, RAs will be stationed at the " \
-                    "<b>Level 1 Main Entrance</b> on Sunday to Saturday from:\n" + \
-                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA + \
-                    "Remember to take a photo of your temperature readings!\n\n" + \
-                    "Last but not least, please rest well and take care during this period!!" + \
-                    FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
-
-    context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
-
-
 def alarmEatin(context):
     job = context.job
     userID = job.context 
@@ -305,6 +272,40 @@ def alarmTakeAway(context):
                             reply_markup=InlineKeyboardMarkup(menu))
     logger.info("Job context is " + str(job.context))
     return CONFIRM_EXIT
+
+# When user leaves dining hall
+def leave(update, context):    
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
+    logger.info("Query data is: ", query.data)
+
+    log_text = "User " + str(user.id) + " has now confirmed exit from DH."
+    logger.info(log_text)
+
+    reply_text = "Thank you for leaving on time! Do remind your friends to do the same as well!" + HAPPY
+
+    context.bot.editMessageText(text=reply_text,
+                                chat_id=chatid,
+                                message_id=query.message.message_id,
+                                parse_mode=ParseMode.HTML)
+
+    return ConversationHandler.END
+
+
+# Feature 3: Reminder function to take temperature
+def callback_reminder(context):
+    REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
+                    "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
+                    "For those who do not have thermometers, RAs will be stationed at the " \
+                    "<b>Level 1 Main Entrance</b> on Sunday to Saturday from:\n" + \
+                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA + \
+                    "Remember to take a photo of your temperature readings!\n\n" + \
+                    "Last but not least, please rest well and take care during this period!!" + \
+                    FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
+
+    context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
 
 # Feature 4: Send DH menu (pdf only)
