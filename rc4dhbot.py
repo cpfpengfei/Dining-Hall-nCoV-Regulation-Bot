@@ -342,6 +342,9 @@ def leave(update, context):
 
     logger.info("Query data is: {}".format(str(query.data)))
 
+    # Check Job Queue
+    logger.info("Job Queue is: {}".format(str(context.job_queue)))
+
     # Remove user from DB
     db.remove(str(user.id))
 
