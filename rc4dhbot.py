@@ -76,16 +76,7 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
             BUTTON + "<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall."
 
 
-def start(update, context):
-    # get status of user from POSTGRESQL + if user is already indicated, cannot press start again 
-    userIn = db.checkUser(str(user.id))
-    if userIn:
-        warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!"
-        context.bot.send_message(text=warnText,
-                                 chat_id=user.id,
-                                 parse_mode=ParseMode.HTML)
-        return ConversationHandler.END # end convo if user pressed start but is in DH
-    
+def start(update, context):    
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot." + ROBOT + "\n\n"
 
     # Get current status from DB
@@ -107,14 +98,25 @@ def start(update, context):
     try:  # for command entry
         user = update.message.from_user
         chatid = update.message.chat_id
-        # if new start, send a new message
-        context.bot.send_message(text=reply_text,
-                                 chat_id=chatid,
-                                 parse_mode=ParseMode.HTML,
-                                 reply_markup=InlineKeyboardMarkup(menu))
-        # job queue for reminders
-        jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
-        jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid)
+
+        # get status of user from POSTGRESQL + if user is already indicated, cannot press /start again 
+        userIn = db.checkUser(str(user.id))
+        if userIn:
+            warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!"
+            context.bot.send_message(text=warnText,
+                                    chat_id=user.id,
+                                    parse_mode=ParseMode.HTML)
+            return ConversationHandler.END # end convo if user pressed start but is in DH
+
+        else:
+            # if new start, send a new message
+            context.bot.send_message(text=reply_text,
+                                    chat_id=chatid,
+                                    parse_mode=ParseMode.HTML,
+                                    reply_markup=InlineKeyboardMarkup(menu))
+            # job queue for reminders
+            jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
+            jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid)
 
     except AttributeError:  # for Backs entry
         query = update.callback_query
@@ -182,6 +184,10 @@ def enter_dh(update, context):
 
 # To ask user to indicate if takeaway or in dining hall dining in 
 def indicate_intention(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
     # get status of user from POSTGRESQL + if user is already indicated, cannot press start again 
     userIn = db.checkUser(str(user.id))
     if userIn:
@@ -191,39 +197,36 @@ def indicate_intention(update, context):
                                     parse_mode=ParseMode.HTML)
         return ConversationHandler.END # end convo if user pressed start but is in DH
 
-    query = update.callback_query
-    user = query.from_user
-    chatid = query.message.chat_id
+    else:
+        # get user intention from button pressed 
+        pressed = str(query.data)
+        if pressed == 'INTENT_0':
+            intention = "TAKEAWAY"
+            duration = "7"
+        if pressed == 'INTENT_1':
+            intention = "DINE-IN"
+            duration = "20"
 
-    # get user intention from button pressed 
-    pressed = str(query.data)
-    if pressed == 'INTENT_0':
-        intention = "TAKEAWAY"
-        duration = "7"
-    if pressed == 'INTENT_1':
-        intention = "DINE-IN"
-        duration = "20"
+        # Using chat_data to store information from the same chat ID
+        context.chat_data['Intention'] = intention
 
-    # Using chat_data to store information from the same chat ID
-    context.chat_data['Intention'] = intention
+        log_text = "User " + str(user.id) + " has indicated to {}. Duration is also initiated in Info Store.".format(
+            intention)
+        logger.info(log_text)
 
-    log_text = "User " + str(user.id) + " has indicated to {}. Duration is also initiated in Info Store.".format(
-        intention)
-    logger.info(log_text)
+        reply_text = "Okay! Got it, you wish to {} in the Dining Hall now, can I confirm?".format(intention)
+        reply_text += "\n\nOr did you mis-press? You can cancel the whole process to go back to the start."
 
-    reply_text = "Okay! Got it, you wish to {} in the Dining Hall now, can I confirm?".format(intention)
-    reply_text += "\n\nOr did you mis-press? You can cancel the whole process to go back to the start."
+        button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data='CONFIRM_ENTRY'),
+                    InlineKeyboardButton(text='Cancel, please!', callback_data='CANCEL')]
+        menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
-    button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data='CONFIRM_ENTRY'),
-                   InlineKeyboardButton(text='Cancel, please!', callback_data='CANCEL')]
-    menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
-
-    context.bot.editMessageText(text=reply_text,
-                                chat_id=chatid,
-                                message_id=query.message.message_id,
-                                reply_markup=InlineKeyboardMarkup(menu),
-                                parse_mode=ParseMode.HTML)
-    return CONFIRM_ENTRY
+        context.bot.editMessageText(text=reply_text,
+                                    chat_id=chatid,
+                                    message_id=query.message.message_id,
+                                    reply_markup=InlineKeyboardMarkup(menu),
+                                    parse_mode=ParseMode.HTML)
+        return CONFIRM_ENTRY
 
 
 # final message and this also triggers the reminder texts to leave the DH later 
