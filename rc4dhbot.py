@@ -1,5 +1,5 @@
 """
-Ver 0.3: Buttons, conversational handlers, and user states 
+Ver 1.0: Four key features and database 
 """
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
@@ -68,8 +68,9 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 <b>Commands on this bot:</b>
 /start : To restart the bot
-/foodtoday : To get the menu for DH today
-/foodtmr : To get the menu for DH tomorrow
+/status : Check the current status of DH only
+/foodtoday : Get the menu for DH today
+/foodtmr : Get the menu for DH tomorrow
 
 <b>Buttons and what they mean:</b>\n""" + \
             BUTTON + "<i>Enter:</i> Click this button only if you are about to enter the dining hall.\n" + \
@@ -79,13 +80,13 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 
 def start(update, context):    
-    reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot." + ROBOT + "\n\n"
+    reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot. " + ROBOT + "\n\n"
 
     # Get current status from DB
     CURRENT_COUNT = db.getCount()
 
-    STATUS_TEXT = "<b>Current Status of DH:</b>\n\n" + EAT
-    STATUS_TEXT += "Number of people in Dining Hall: {}".format(str(CURRENT_COUNT))
+    STATUS_TEXT = "<b>Current Status of DH:</b>\n" + EAT
+    STATUS_TEXT += "Number of people in Dining Hall: <b>{}</b>".format(str(CURRENT_COUNT))
     reply_text += STATUS_TEXT
     reply_text += "\n**************************************\n"
     reply_text += "\n<b>What do you wish to do next?</b>\n\n" + BUTTON + "Press <i>Enter Dining Hall</i> if you are now entering the dining hall!\n\n" \
@@ -104,7 +105,7 @@ def start(update, context):
         # get status of user from POSTGRESQL + if user is already indicated, cannot press /start again 
         userIn = db.checkUser(str(user.id))
         if userIn:
-            warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!"
+            warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!\n\nTo check the status of the DH currently, press /status."
             context.bot.send_message(text=warnText,
                                     chat_id=user.id,
                                     parse_mode=ParseMode.HTML)
@@ -135,6 +136,21 @@ def start(update, context):
     logger.info(log_text)
 
     return AFTER_START
+
+# command to get status only
+def status(update, context):
+    user = update.message.from_user
+    chatid = update.message.chat_id
+
+    # Get current status from DB
+    CURRENT_COUNT = db.getCount()
+    STATUS_TEXT = "<b>Current Status of DH:</b>\n" + EAT
+    STATUS_TEXT += "Number of people in Dining Hall: <b>{}</b>".format(str(CURRENT_COUNT))
+
+    context.bot.send_message(text=STATUS_TEXT,
+                             chat_id=chatid,
+                             parse_mode=ParseMode.HTML)
+    return
 
 
 # provides a help and about message 
@@ -193,7 +209,7 @@ def indicate_intention(update, context):
     # get status of user from POSTGRESQL + if user is already indicated, cannot press start again 
     userIn = db.checkUser(str(user.id))
     if userIn:
-        warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!"
+        warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!\n\nTo check the status of the DH currently, press /status."
         context.bot.editMessageText(text=warnText,
                                     chat_id=user.id,
                                     parse_mode=ParseMode.HTML)
@@ -204,10 +220,8 @@ def indicate_intention(update, context):
         pressed = str(query.data)
         if pressed == 'INTENT_0':
             intention = "TAKEAWAY"
-            duration = "7"
         if pressed == 'INTENT_1':
             intention = "DINE-IN"
-            duration = "20"
 
         # Using chat_data to store information from the same chat ID
         context.chat_data['Intention'] = intention
@@ -249,16 +263,16 @@ def send_final(update, context):
                                 parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user 
 
     indicatedIntention = context.chat_data['Intention']
-    logger.info("Pulled intention is" + indicatedIntention)
+    logger.info("Pulled intention is " + indicatedIntention)
     if (indicatedIntention == "TAKEAWAY"):
         # Add user to DB for takeaway
         db.addTakeAwayUser(str(user.id))
-        new_job = context.job_queue.run_once(alarmTakeAway, 5, context=user.id) # changed context to userID so as to be not usable in groups
+        new_job = context.job_queue.run_once(alarmTakeAway, 420, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
         db.addDineInUser(str(user.id))
-        new_job = context.job_queue.run_once(alarmEatin, 1200, context=user.id)
+        new_job = context.job_queue.run_once(alarmEatin, 1500, context=user.id) # 1500s = 25 mins
         logger.info("Dining in timer has started")
     else:
         logger.warning("Something went wrong with the intention...")
@@ -271,7 +285,7 @@ def alarmEatin(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    EATIN_MESSAGE = "<b>EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 20 MINUTES ALREADY LEH. PLEASE LEAVE NOW.</b>" + RUN
+    EATIN_MESSAGE = "<b>EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 25 MINUTES ALREADY LEH. PLEASE LEAVE NOW.</b>" + RUN
 
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data=exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
@@ -308,7 +322,8 @@ def leave(update, context):
     user = query.from_user
     chatid = query.message.chat_id
 
-    logger.info("Query data is: ", str(query.data))
+    current_data = query.data[0]
+    logger.info("Query data is: ", str(current_data))
 
     # Remove user from DB
     db.remove(str(user.id))
@@ -316,7 +331,7 @@ def leave(update, context):
     log_text = "User " + str(user.id) + " has now confirmed exit from DH."
     logger.info(log_text)
 
-    reply_text = "<b>Thank you for leaving on time! Do remind your friends to do the same as well!</b>" + HAPPY
+    reply_text = "<b>Thank you for leaving on time! Do remind your friends to do the same as well! </b>" + HAPPY
 
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
@@ -402,6 +417,9 @@ def main():
     # commands for menu today and tomorrow
     dispatcher.add_handler(CommandHandler('foodtoday', foodtoday))
     dispatcher.add_handler(CommandHandler('foodtmr', foodtmr))
+
+    # Individual command to get status text only
+    dispatcher.add_handler(CommandHandler('status', status))
 
     # create conversational handler for different states and dispatch it
     conv_handler = ConversationHandler(
