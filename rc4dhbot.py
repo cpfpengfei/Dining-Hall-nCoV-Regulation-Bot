@@ -63,6 +63,9 @@ RUN = u"\U0001F3C3\U0001F3FB"
 ## INITIATE POSTGRESQL HERE
 db = Database()
 
+#INFOSTORE FOR MAPPING OF USERID TO JOBS
+INFOSTORE = {}
+
 # help text
 HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
@@ -280,11 +283,13 @@ def send_final(update, context):
         # Add user to DB for takeaway
         db.addTakeAwayUser(str(user.id))
         new_job = context.job_queue.run_once(alarmTakeAway, 420, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
+        INFOSTORE[str(user.id)] = new_job
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
         db.addDineInUser(str(user.id))
         new_job = context.job_queue.run_once(alarmEatin, 1500, context=user.id) # 1500s = 25 mins
+        INFOSTORE[str(user.id)] = new_job
         logger.info("Dining in timer has started")
     else:
         logger.warning("Something went wrong with the intention...")
@@ -365,6 +370,11 @@ def leave(update, context):
 
     # Remove user from DB
     db.remove(str(user.id))
+    INFOSTORE[str(user.id)].schedule_removal()
+    del INFOSTORE[str(user.id)]
+
+    # Check Job Queue
+    logger.info("Job Queue is: {}".format(context.job_queue.jobs()))
 
     log_text = "User " + str(user.id) + " has now confirmed exit from DH."
     logger.info(log_text)
