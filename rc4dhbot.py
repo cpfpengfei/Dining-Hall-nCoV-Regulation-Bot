@@ -254,10 +254,10 @@ def send_final(update, context):
     log_text = "User " + str(user.id) + " has now confirmed entry to the DH."
     logger.info(log_text)
 
-    reply_text = "Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!\n\n" \
+    reply_text = "<b>Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!</b>\n\n" \
                  "I will remind you again to indicate that you are leaving the dining hall!\n\n" + EAT + " Enjoy your meal! " + EAT
 
-    reply_text += "\n\nNote: If you wish to leave now, you can send in the command: leavenow but with a slash infront."
+    reply_text += "\n\nNote: If you wish to leave now, you can send in the command - leavenow but with a slash infront."
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
                                 message_id=query.message.message_id,
@@ -304,7 +304,7 @@ def alarmEatin(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    EATIN_MESSAGE = "<b>EH HELLO! YOU HAVE BEEN EATING IN THE DINING HALL FOR 25 MINUTES ALREADY LEH. PLEASE LEAVE NOW.</b>" + RUN
+    EATIN_MESSAGE = "<b>Hi, you have been in the Dining Hall for 25 minutes. Please leave now!</b>" + RUN + "\n"
 
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data=exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
@@ -322,8 +322,7 @@ def alarmTakeAway(context):
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    TAKEAWAY_MESSAGE = "<b>EH HELLO! YOU HAVE BEEN IN THE DINING HALL FOR 10 MINUTES. YOU NEED 10 MINUTES TO TAKEAWAY MEH? PLEASE LEAVE NOW.</b>" \
-                       + RUN
+    TAKEAWAY_MESSAGE = "<b>Hi, you have been in the Dining Hall for 7 minutes! Don't take too long to takeaway - Please leave now!</b>" + RUN + "\n"
 
     button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
