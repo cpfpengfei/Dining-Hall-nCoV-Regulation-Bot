@@ -122,7 +122,7 @@ def start(update, context):
     timeNow = datetime.datetime.now()
     STATUS_TEXT = "<b>Current Status of DH:</b>\n"
     # check if overload > 50 people in DH
-    if TOTAL_COUNT >= 1:
+    if TOTAL_COUNT >= 50:
         STATUS_TEXT += FIRE + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
@@ -220,7 +220,7 @@ def status(update, context):
     timeNow = datetime.datetime.now()
     STATUS_TEXT = "<b>Current Status of DH:</b>\n"
     # check if overload > 50 people in DH
-    if TOTAL_COUNT >= 1:
+    if TOTAL_COUNT >= 50:
         STATUS_TEXT += FIRE + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
