@@ -47,9 +47,13 @@ BUTTON = u"\U0001F518"
 ROBOT = u"\U0001F916"
 QUEUE = u"\U0001F46B"
 EAT = u"\U0001F37D"
+BOWL = u"\U0001F372"
 HAPPY = u"\U0001F970"
 BOO = u"\U0001F92C"
 RUN = u"\U0001F3C3\U0001F3FB"
+LIGHTNING = u"\U000026A1"
+INFO = u"\U00002139"
+WARNING = u"\U000026a0"
 
 
 #  ██████╗ ██████╗ ███╗   ██╗██╗   ██╗ ██████╗     ███████╗████████╗ █████╗ ████████╗███████╗███████╗
@@ -116,20 +120,29 @@ def start(update, context):
     TOTAL_COUNT = int(DINE_IN_COUNT) + int(TAKEAWAY_COUNT)
 
     STATUS_TEXT = "<b>Current Status of DH:</b>\n"
+    # check if overload > 50 people in DH
+    if TOTAL_COUNT >= 1:
+        STATUS_TEXT += WARNING + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
-    STATUS_TEXT += "\n" + QUEUE + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "\n" + BOWL + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
 
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
     reply_text += "\nHey there! Thanks for using the bot! Do you wish to dine-in or takeaway?\n\n" \
                     + BUTTON + "Press <i>Dine-In</i> to eat inside the dining hall (limit of 25 mins)\n\n" \
                     + BUTTON + "Press <i>Takeaway</i> to takeaway food with your own container (limit of 7 mins)\n\n" \
-                    + BUTTON + "Press <i>Help/About</i> if you need further assistance :)" \
-
-    button_list = [InlineKeyboardButton(text='Takeaway', callback_data='INTENT_0'),
-                   InlineKeyboardButton(text='Dine-In', callback_data='INTENT_1'),
-                   InlineKeyboardButton(text='Help / About', callback_data='HELP')]
+                    + BUTTON + "Press <i>Refresh</i> to get the latest crowd level!\n\n" \
+                    + BUTTON + "Press <i>Help</i> if you need further assistance or to find more information :)" \
+    
+    takeawayText = BOWL + " Takeaway"
+    dineInText = EAT + " Dine-In"
+    helpText = INFO + " Help"
+    refreshText = LIGHTNING + " Refresh"
+    button_list = [InlineKeyboardButton(text= takeawayText, callback_data='INTENT_0'),
+                   InlineKeyboardButton(text= dineInText, callback_data='INTENT_1'),
+                   InlineKeyboardButton(text= helpText, callback_data='HELP'),
+                   InlineKeyboardButton(text= refreshText, callback_data='REFRESH')]
     menu = build_menu(button_list, n_cols=2, header_buttons=None, footer_buttons=None)
 
     # create a jobqueue
@@ -143,8 +156,8 @@ def start(update, context):
         # get status of user from POSTGRESQL + if user is already indicated, cannot press /start again
         userIn = db.checkUser(str(user.id))
         if userIn:
-            warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!\n\nTo check the status of the DH currently, press /status."
-            warnText += "\n\nNote: If you wish to leave now, you can send in the command - leavenow but with a slash infront."
+            warnText = "<b>You have already indicated earlier.</b> You can't enter the DH twice!\n\nTo leave the dining hall, press the leave button in any previous message (or reminder message) I have sent you!\n\n"
+            warnText += STATUS_TEXT
             context.bot.send_message(text=warnText,
                                     chat_id=user.id,
                                     parse_mode=ParseMode.HTML)
@@ -157,12 +170,7 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML,
                                     reply_markup=InlineKeyboardMarkup(menu))
 
-            #REMINDER_QUEUE.add(str(user.id))
-
-            # job queue for reminders
-            if 'testjob' in context.chat_data:
-                old_job = context.chat_data['testjob']
-                old_job.schedule_removal()
+            # job queue for reminders for temp takings; if job has been created, delete it first, then create new one again (following telegram API)
             if 'morningReminder' in context.chat_data:
                 old_job = context.chat_data['morningReminder']
                 old_job.schedule_removal()
@@ -170,19 +178,17 @@ def start(update, context):
                 old_job = context.chat_data['eveningReminder']
                 old_job.schedule_removal()
 
-            testjob = jobq.run_daily(callback_reminder, datetime.time(17, 46, 00), context=chatid)
-            context.chat_data['testjob'] = testjob
-            morningReminder = jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid)
+            morningReminder = jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid) # reminder at 8am
             context.chat_data['morningReminder'] = morningReminder
-            eveningReminder = jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid)
+            eveningReminder = jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid) # reminder at 530pm
             context.chat_data['eveningReminder'] = eveningReminder
 
-    except AttributeError:  # for Backs entry
+    except AttributeError:  # for backs and refreshes 
         query = update.callback_query
         user = query.from_user
         chatid = query.message.chat_id
         # if existing user, edit message
-        context.bot.editMessageText(text=reply_text,
+        context.bot.editMessageText(text=reply_text, # same reply text
                                     chat_id=chatid,
                                     message_id=query.message.message_id,  # to edit the prev message sent by bot
                                     reply_markup=InlineKeyboardMarkup(menu),
@@ -210,9 +216,12 @@ def status(update, context):
     TOTAL_COUNT = int(DINE_IN_COUNT) + int(TAKEAWAY_COUNT)
 
     STATUS_TEXT = "<b>Current Status of DH:</b>\n"
+    # check if overload > 50 people in DH
+    if TOTAL_COUNT >= 1:
+        STATUS_TEXT += WARNING + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
-    STATUS_TEXT += "\n" + QUEUE + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "\n" + BOWL + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
     
     context.bot.send_message(text=STATUS_TEXT,
                              chat_id=chatid,
@@ -281,8 +290,7 @@ def indicate_intention(update, context):
         # Using chat_data to store information from the same chat ID
         context.chat_data['Intention'] = intention
 
-        log_text = "User " + str(user.id) + " has indicated to {}. Duration is also initiated in Info Store.".format(
-            intention)
+        log_text = "User " + str(user.id) + " has indicated to {}.".format(intention)
         logger.info(log_text)
 
         reply_text = "Yumz, time for some good food!\n\nYou wish to {} in the Dining Hall now, can I confirm?".format(intention)
@@ -316,8 +324,8 @@ def send_final(update, context):
     logger.info(log_text)
 
     reply_text = "<b>Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!</b>\n\n" \
-                + "I will remind you again to indicate that you are leaving the dining hall!\n\n" + EAT + " Enjoy your meal! " + EAT \
-                + "\n\nPlease press the button below <b>only if you are currently leaving</b> the dining hall!"
+                + "I have also set up timers to remind you when the time limit is up!\n\n" + EAT + " Enjoy your meal! " + EAT \
+                + "\n\nPlease press the button below <b>only if you are currently leaving</b> the dining hall:"
 
     # encode leaving to specific user ID
     exitID = "LEAVE_" + str(user.id)
@@ -337,14 +345,14 @@ def send_final(update, context):
         db.addTakeAwayUser(str(user.id))
         new_job = context.job_queue.run_once(alarmTakeAway, 10, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
         #INFOSTORE[str(user.id)] = new_job
-        logger.info("Takeaway timer has started")
+        logger.info("Takeaway timer has started for {}".format(str(user.id)))
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
         db.addDineInUser(str(user.id))
         new_job1 = context.job_queue.run_once(alarmEatIn25, 20, context=user.id) # 1500s = 25 mins
         new_job2 = context.job_queue.run_once(alarmEatIn20, 10, context=user.id) # 1200s = 20 mins
         #INFOSTORE[str(user.id)] = new_job
-        logger.info("Dining in timer has started")
+        logger.info("Two dining in timers have started for {}".format(str(user.id)))
     else:
         logger.warning("Something went wrong with the intention...")
 
@@ -362,7 +370,7 @@ def leaveEarly(update, context):
     query = update.callback_query
     user = query.from_user
     chatid = query.message.chat_id
-    reply_text = "<b>Are you sure you are leaving the Dining Hall now?</b>\n"
+    reply_text = "<b>Are you sure you are leaving the Dining Hall right now?</b>\n"
 
     # encode leaving to specific user ID
     exitID = "EXITCONFIRM_" + str(user.id)
@@ -597,7 +605,8 @@ def main():
 
         states={
             AFTER_START: [CallbackQueryHandler(callback=send_help, pattern='^(HELP)$'),
-                          CallbackQueryHandler(callback=indicate_intention, pattern='^(INTENT_)[0-1]{1}$')], # intention either 0 or 1 for takeaway or dine in
+                          CallbackQueryHandler(callback=indicate_intention, pattern='^(INTENT_)[0-1]{1}$'), # intention either 0 or 1 for takeaway or dine in
+                          CallbackQueryHandler(callback=start, pattern='^(REFRESH)$')], 
 
             AFTER_HELP: [CallbackQueryHandler(callback=start, pattern='^(BACKTOSTART)$')],
 
