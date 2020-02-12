@@ -1,5 +1,5 @@
 """
-Ver 1.1
+Ver 1.6
 """
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
@@ -335,14 +335,14 @@ def send_final(update, context):
     if (indicatedIntention == "TAKEAWAY"):
         # Add user to DB for takeaway
         db.addTakeAwayUser(str(user.id))
-        new_job = context.job_queue.run_once(alarmTakeAway, 420, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
+        new_job = context.job_queue.run_once(alarmTakeAway, 10, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Takeaway timer has started")
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
         db.addDineInUser(str(user.id))
-        new_job1 = context.job_queue.run_once(alarmEatIn25, 1500, context=user.id) # 1500s = 25 mins
-        new_job2 = context.job_queue.run_once(alarmEatIn20, 1200, context=user.id) # 1200s = 20 mins
+        new_job1 = context.job_queue.run_once(alarmEatIn25, 20, context=user.id) # 1500s = 25 mins
+        new_job2 = context.job_queue.run_once(alarmEatIn20, 10, context=user.id) # 1200s = 20 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Dining in timer has started")
     else:
@@ -391,7 +391,7 @@ def alarmEatIn25(context):
     userID = job.context
 
     # encode leaving to specific user ID
-    exitID = "EXITCONFIRM_" + str(user.id)
+    exitID = "EXITCONFIRM_" + str(userID)
 
     EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + RUN + RUN + "\n"
 
@@ -430,7 +430,7 @@ def alarmTakeAway(context):
     job = context.job
     userID = job.context
     # encode leaving to specific user ID
-    exitID = "EXITCONFIRM_" + str(user.id)
+    exitID = "EXITCONFIRM_" + str(userID)
 
     TAKEAWAY_MESSAGE = "<b>Hi, you have been in the Dining Hall for 7 minutes to take away food. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
 
