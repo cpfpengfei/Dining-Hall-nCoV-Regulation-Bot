@@ -53,7 +53,7 @@ BOO = u"\U0001F92C"
 RUN = u"\U0001F3C3\U0001F3FB"
 LIGHTNING = u"\U000026A1"
 INFO = u"\U00002139"
-WARNING = u"\U0000203c"
+FIRE = u"\U0001f525"
 
 
 #  ██████╗ ██████╗ ███╗   ██╗██╗   ██╗ ██████╗     ███████╗████████╗ █████╗ ████████╗███████╗███████╗
@@ -123,11 +123,11 @@ def start(update, context):
     STATUS_TEXT = "<b>Current Status of DH:</b>\n"
     # check if overload > 50 people in DH
     if TOTAL_COUNT >= 1:
-        STATUS_TEXT += WARNING + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
+        STATUS_TEXT += FIRE + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
     STATUS_TEXT += "\n" + BURGER + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
-    STATUS_TEXT += "<i>Accurate as of: {}</i>".format(timeNow.strftime("%d/%m/%Y %H:%M:%S"))
+    STATUS_TEXT += "\n<i>Accurate as of: {}</i>".format(timeNow.strftime("%d/%m/%Y %H:%M:%S"))
 
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
@@ -221,11 +221,11 @@ def status(update, context):
     STATUS_TEXT = "<b>Current Status of DH:</b>\n"
     # check if overload > 50 people in DH
     if TOTAL_COUNT >= 1:
-        STATUS_TEXT += WARNING + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
+        STATUS_TEXT += FIRE + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
     STATUS_TEXT += "\n" + BURGER + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
-    STATUS_TEXT += "<i>Accurate as of: {}</i>".format(timeNow.strftime("%d/%m/%Y %H:%M:%S"))
+    STATUS_TEXT += "\n<i>Accurate as of: {}</i>".format(timeNow.strftime("%d/%m/%Y %H:%M:%S"))
     
     context.bot.send_message(text=STATUS_TEXT,
                              chat_id=chatid,
@@ -297,7 +297,7 @@ def indicate_intention(update, context):
         log_text = "User " + str(user.id) + " has indicated to {}.".format(intention)
         logger.info(log_text)
 
-        reply_text = "Yumz, time for some good food!\n\nYou wish to {} in the Dining Hall now, can I confirm?".format(intention)
+        reply_text = "Yumz, time for some good food!\n\n<b>You wish to {} in the Dining Hall now, can I confirm?</b>".format(intention)
         reply_text += "\n\nOr did you accidentally press? Press <i>Back</i> to go back to the previous page!"
 
         button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data='CONFIRM_ENTRY'),
