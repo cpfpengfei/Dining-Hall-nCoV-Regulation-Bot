@@ -356,7 +356,8 @@ def send_final(update, context):
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
         db.addDineInUser(str(user.id))
-        new_job = context.job_queue.run_once(alarmEatin, 1500, context=user.id) # 1500s = 25 mins
+        new_job1 = context.job_queue.run_once(alarmEatIn25, 1500, context=user.id) # 1500s = 25 mins
+        new_job2 = context.job_queue.run_once(alarmEatIn20, 1200, context=user.id) # 1200s = 20 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Dining in timer has started")
     else:
@@ -424,20 +425,20 @@ def leave(update, context):
 #    ██║   ██║██║ ╚═╝ ██║███████╗██║  ██║███████║
 #    ╚═╝   ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝
 #                                                
-def alarmEatin(context):
+def alarmEatIn25(context):
     job = context.job
     userID = job.context
     # encode leaving to specific user ID
     exitID = "EXIT_" + str(userID)
 
-    EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
+    EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + RUN + RUN + "\n"
 
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data=exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
     userIn = db.checkUser(str(userID))
     if userIn:
-        logger.info("Reminder text for takeaway has been sent to the user {}".format(str(userID)))
+        logger.info("Reminder text for eatin25 has been sent to the user {}".format(str(userID)))
         context.bot.send_message(userID,
                                 text=EATIN_MESSAGE,
                                 reply_markup=InlineKeyboardMarkup(menu),
@@ -446,6 +447,22 @@ def alarmEatin(context):
         logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
     return 
 
+def alarmEatIn20(context):
+    job = context.job
+    userID = job.context
+    exitID = "EXIT_" + str(userID)
+
+    EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 20 minutes already. Kindly leave soon!</b> " + RUN + "\n"
+
+    userIn = db.checkUser(str(userID))
+    if userIn:
+        logger.info("Reminder text for eatin20 has been sent to the user {}".format(str(userID)))
+        context.bot.send_message(userID,
+                                text=EATIN_MESSAGE,
+                                parse_mode=ParseMode.HTML)
+    else:     # if user has left early
+        logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
+    return 
 
 def alarmTakeAway(context):
     job = context.job
