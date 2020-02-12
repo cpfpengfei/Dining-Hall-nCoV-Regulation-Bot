@@ -4,11 +4,12 @@ Ver 1.1
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
+from sendMenu import getMenuURL
+from databasefn import Database
+from buildMenu import build_menu
 import os
 import logging
 import datetime
-from sendMenu import getMenuURL
-from databasefn import Database
 import schedule
 import time
 import threading
@@ -27,24 +28,17 @@ logging.basicConfig(
     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
-
-# A function to build menu of buttons for every occasion
-def build_menu(buttons, n_cols, header_buttons, footer_buttons):
-    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
-    if header_buttons:
-        menu.insert(0, header_buttons)
-    if footer_buttons:
-        menu.append(footer_buttons)
-    return menu
-
-
-###########################################
-# EMOJI CODE
+# ███████╗███╗   ███╗ ██████╗      ██╗██╗
+# ██╔════╝████╗ ████║██╔═══██╗     ██║██║
+# █████╗  ██╔████╔██║██║   ██║     ██║██║
+# ██╔══╝  ██║╚██╔╝██║██║   ██║██   ██║██║
+# ███████╗██║ ╚═╝ ██║╚██████╔╝╚█████╔╝██║
+# ╚══════╝╚═╝     ╚═╝ ╚═════╝  ╚════╝ ╚═╝
+#                                        
 WHALE = u"\U0001F40B"
 THERMOMETER = u"\U0001F321"
 FLEXED_BICEPS = u"\U0001F4AA\U0001F3FB"
@@ -56,18 +50,41 @@ EAT = u"\U0001F37D"
 HAPPY = u"\U0001F970"
 BOO = u"\U0001F92C"
 RUN = u"\U0001F3C3\U0001F3FB"
-###########################################
 
+
+#  ██████╗ ██████╗ ███╗   ██╗██╗   ██╗ ██████╗     ███████╗████████╗ █████╗ ████████╗███████╗███████╗
+# ██╔════╝██╔═══██╗████╗  ██║██║   ██║██╔═══██╗    ██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██╔════╝██╔════╝
+# ██║     ██║   ██║██╔██╗ ██║██║   ██║██║   ██║    ███████╗   ██║   ███████║   ██║   █████╗  ███████╗
+# ██║     ██║   ██║██║╚██╗██║╚██╗ ██╔╝██║   ██║    ╚════██║   ██║   ██╔══██║   ██║   ██╔══╝  ╚════██║
+# ╚██████╗╚██████╔╝██║ ╚████║ ╚████╔╝ ╚██████╔╝    ███████║   ██║   ██║  ██║   ██║   ███████╗███████║
+#  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝  ╚═══╝   ╚═════╝     ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝
+#     
 # Set up states in the conversation
-(AFTER_START, AFTER_HELP, CONFIRM_ENTRY) = range(4) # CONFIRM_EXIT
+(AFTER_START, AFTER_HELP, CONFIRM_ENTRY) = range(3) # CONFIRM_EXIT
+                                                                                               
 
-## INITIATE POSTGRESQL HERE
+# ██████╗  █████╗ ████████╗ █████╗ ██████╗  █████╗ ███████╗███████╗
+# ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝
+# ██║  ██║███████║   ██║   ███████║██████╔╝███████║███████╗█████╗  
+# ██║  ██║██╔══██║   ██║   ██╔══██║██╔══██╗██╔══██║╚════██║██╔══╝  
+# ██████╔╝██║  ██║   ██║   ██║  ██║██████╔╝██║  ██║███████║███████╗
+# ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝
+#                                                                           
 db = Database()
 
-#INFOSTORE FOR MAPPING OF USERID TO JOBS
-#INFOSTORE = {}
+def purge_db():
+    logger.info("NOTE: DB HAS BEEN PURGED - DH has closed.")
+    db.purge()
+    return
 
-# help text
+
+# ██╗  ██╗███████╗██╗     ██████╗     ████████╗███████╗██╗  ██╗████████╗
+# ██║  ██║██╔════╝██║     ██╔══██╗    ╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝
+# ███████║█████╗  ██║     ██████╔╝       ██║   █████╗   ╚███╔╝    ██║   
+# ██╔══██║██╔══╝  ██║     ██╔═══╝        ██║   ██╔══╝   ██╔██╗    ██║   
+# ██║  ██║███████╗███████╗██║            ██║   ███████╗██╔╝ ██╗   ██║   
+# ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝            ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝   
+#                                                                       
 HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 <b>Commands on this bot:</b>
@@ -84,6 +101,13 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 "\n\n<b>Feedbacks / Wish to contribute?</b>" + \
 "\nContacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
 
+# ███████╗████████╗ █████╗ ██████╗ ████████╗
+# ██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝
+# ███████╗   ██║   ███████║██████╔╝   ██║   
+# ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   
+# ███████║   ██║   ██║  ██║██║  ██║   ██║   
+# ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
+#                                           
 def start(update, context):
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot. " + ROBOT + "\n\n"
 
@@ -170,8 +194,13 @@ def start(update, context):
     return AFTER_START
 
 
-
-# command to get status only
+# ███████╗████████╗ █████╗ ████████╗██╗   ██╗███████╗
+# ██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██║   ██║██╔════╝
+# ███████╗   ██║   ███████║   ██║   ██║   ██║███████╗
+# ╚════██║   ██║   ██╔══██║   ██║   ██║   ██║╚════██║
+# ███████║   ██║   ██║  ██║   ██║   ╚██████╔╝███████║
+# ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝
+#                                                    
 def status(update, context):
     user = update.message.from_user
     chatid = update.message.chat_id
@@ -191,7 +220,13 @@ def status(update, context):
     return
 
 
-# provides a help and about message
+# ██╗  ██╗███████╗██╗     ██████╗ 
+# ██║  ██║██╔════╝██║     ██╔══██╗
+# ███████║█████╗  ██║     ██████╔╝
+# ██╔══██║██╔══╝  ██║     ██╔═══╝ 
+# ██║  ██║███████╗███████╗██║     
+# ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     
+#                                 
 def send_help(update, context):
     query = update.callback_query
     user = query.from_user
@@ -214,7 +249,13 @@ def send_help(update, context):
 
 
 
-# To ask user to indicate if takeaway or in dining hall dining in
+# ██╗███╗   ██╗████████╗███████╗███╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
+# ██║████╗  ██║╚══██╔══╝██╔════╝████╗  ██║╚══██╔══╝██║██╔═══██╗████╗  ██║
+# ██║██╔██╗ ██║   ██║   █████╗  ██╔██╗ ██║   ██║   ██║██║   ██║██╔██╗ ██║
+# ██║██║╚██╗██║   ██║   ██╔══╝  ██║╚██╗██║   ██║   ██║██║   ██║██║╚██╗██║
+# ██║██║ ╚████║   ██║   ███████╗██║ ╚████║   ██║   ██║╚██████╔╝██║ ╚████║
+# ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+#                                                                        
 def indicate_intention(update, context):
     query = update.callback_query
     user = query.from_user
@@ -259,7 +300,13 @@ def indicate_intention(update, context):
         return CONFIRM_ENTRY
 
 
-# final message and this also triggers the reminder texts to leave the DH later
+#  ██████╗ ██████╗ ███╗   ██╗███████╗██╗██████╗ ███╗   ███╗    ███████╗███╗   ██╗████████╗██████╗ ██╗   ██╗
+# ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔══██╗████╗ ████║    ██╔════╝████╗  ██║╚══██╔══╝██╔══██╗╚██╗ ██╔╝
+# ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██████╔╝██╔████╔██║    █████╗  ██╔██╗ ██║   ██║   ██████╔╝ ╚████╔╝ 
+# ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██╔══██╗██║╚██╔╝██║    ██╔══╝  ██║╚██╗██║   ██║   ██╔══██╗  ╚██╔╝  
+# ╚██████╗╚██████╔╝██║ ╚████║██║     ██║██║  ██║██║ ╚═╝ ██║    ███████╗██║ ╚████║   ██║   ██║  ██║   ██║   
+#  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝    ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   
+#                                                                                                          
 def send_final(update, context):
     query = update.callback_query
     user = query.from_user
@@ -294,7 +341,8 @@ def send_final(update, context):
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
         db.addDineInUser(str(user.id))
-        new_job = context.job_queue.run_once(alarmEatin, 1500, context=user.id) # 1500s = 25 mins
+        new_job1 = context.job_queue.run_once(alarmEatIn25, 1500, context=user.id) # 1500s = 25 mins
+        new_job2 = context.job_queue.run_once(alarmEatIn20, 1200, context=user.id) # 1200s = 20 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Dining in timer has started")
     else:
@@ -303,6 +351,13 @@ def send_final(update, context):
     return
 
 # changed to button to leave 
+# ██╗     ███████╗ █████╗ ██╗   ██╗███████╗
+# ██║     ██╔════╝██╔══██╗██║   ██║██╔════╝
+# ██║     █████╗  ███████║██║   ██║█████╗  
+# ██║     ██╔══╝  ██╔══██║╚██╗ ██╔╝██╔══╝  
+# ███████╗███████╗██║  ██║ ╚████╔╝ ███████╗
+# ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝
+#                                          
 def leaveNow(update, context):
     user = update.message.from_user
     chatid = update.message.chat_id
@@ -320,21 +375,57 @@ def leaveNow(update, context):
                              parse_mode=ParseMode.HTML)
     return
 
-def alarmEatin(context):
+
+# When user leaves dining hall
+def leaveFinal(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
+
+    logger.info("Query data is: {}".format(str(query.data)))
+
+    # Remove user from DB
+    db.remove(str(user.id))
+    #INFOSTORE[str(user.id)].schedule_removal()
+    #del INFOSTORE[str(user.id)]
+
+    # Check Job Queue
+    #logger.info("Job Queue is: {}".format(context.job_queue.jobs()))
+
+    log_text = "User " + str(user.id) + " has now confirmed exit from DH."
+    logger.info(log_text)
+
+    reply_text = "<b>Thank you for leaving on time! Do remind your friends to do the same as well! </b>" + HAPPY
+
+    context.bot.editMessageText(text=reply_text,
+                                chat_id=chatid,
+                                message_id=query.message.message_id,
+                                parse_mode=ParseMode.HTML)
+
+    return ConversationHandler.END
+
+# ████████╗██╗███╗   ███╗███████╗██████╗ ███████╗
+# ╚══██╔══╝██║████╗ ████║██╔════╝██╔══██╗██╔════╝
+#    ██║   ██║██╔████╔██║█████╗  ██████╔╝███████╗
+#    ██║   ██║██║╚██╔╝██║██╔══╝  ██╔══██╗╚════██║
+#    ██║   ██║██║ ╚═╝ ██║███████╗██║  ██║███████║
+#    ╚═╝   ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝
+#                                                
+def alarmEatIn25(context):
     job = context.job
     userID = job.context
 
     # encode leaving to specific user ID
     exitID = "EXITCONFIRM_" + str(user.id)
 
-    EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
+    EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + RUN + RUN + "\n"
 
     button_list = [InlineKeyboardButton(text='Leave Dining hall', callback_data=exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
     userIn = db.checkUser(str(userID))
     if userIn:
-        logger.info("Reminder text for takeaway has been sent to the user {}".format(str(userID)))
+        logger.info("Reminder text for eatin25 has been sent to the user {}".format(str(userID)))
         context.bot.send_message(userID,
                                 text=EATIN_MESSAGE,
                                 reply_markup=InlineKeyboardMarkup(menu),
@@ -343,6 +434,22 @@ def alarmEatin(context):
         logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
     return 
 
+def alarmEatIn20(context):
+    job = context.job
+    userID = job.context
+    exitID = "EXITCONFIRM_" + str(userID)
+
+    EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 20 minutes already. Kindly leave soon!</b> " + RUN + "\n"
+
+    userIn = db.checkUser(str(userID))
+    if userIn:
+        logger.info("Reminder text for eatin20 has been sent to the user {}".format(str(userID)))
+        context.bot.send_message(userID,
+                                text=EATIN_MESSAGE,
+                                parse_mode=ParseMode.HTML)
+    else:     # if user has left early
+        logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
+    return 
 
 def alarmTakeAway(context):
     job = context.job
@@ -397,6 +504,13 @@ def leaveConfirm(update, context):
 
 
 # Feature 3: Reminder function to take temperature
+# ██████╗ ███████╗███╗   ███╗██╗███╗   ██╗██████╗ ███████╗██████╗ 
+# ██╔══██╗██╔════╝████╗ ████║██║████╗  ██║██╔══██╗██╔════╝██╔══██╗
+# ██████╔╝█████╗  ██╔████╔██║██║██╔██╗ ██║██║  ██║█████╗  ██████╔╝
+# ██╔══██╗██╔══╝  ██║╚██╔╝██║██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗
+# ██║  ██║███████╗██║ ╚═╝ ██║██║██║ ╚████║██████╔╝███████╗██║  ██║
+# ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝
+#                                                                 
 def callback_reminder(context):
     REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
                     "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
@@ -410,7 +524,13 @@ def callback_reminder(context):
     context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
 
-# Feature 4: Send DH menu (pdf only)
+# ██████╗ ██╗  ██╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
+# ██╔══██╗██║  ██║    ████╗ ████║██╔════╝████╗  ██║██║   ██║
+# ██║  ██║███████║    ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
+# ██║  ██║██╔══██║    ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
+# ██████╔╝██║  ██║    ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
+# ╚═════╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
+#                                                           
 def foodtoday(update, context):
     user = update.message.from_user
     chatid = update.message.chat_id
@@ -435,6 +555,13 @@ def foodtmr(update, context):
     return
 
 
+#  ██████╗ █████╗ ███╗   ██╗ ██████╗███████╗██╗     
+# ██╔════╝██╔══██╗████╗  ██║██╔════╝██╔════╝██║     
+# ██║     ███████║██╔██╗ ██║██║     █████╗  ██║     
+# ██║     ██╔══██║██║╚██╗██║██║     ██╔══╝  ██║     
+# ╚██████╗██║  ██║██║ ╚████║╚██████╗███████╗███████╗
+#  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚══════╝╚══════╝
+#                                                   
 def cancel(update, context):
     user = update.message.from_user
     chatid = update.message.chat_id
@@ -450,12 +577,13 @@ def cancel(update, context):
                              parse_mode=ParseMode.HTML)
     return ConversationHandler.END
 
-
-def purge_db():
-    logger.info("NOTE: DB HAS BEEN PURGED - DH has closed.")
-    db.purge()
-    return
-
+# ███╗   ███╗ █████╗ ██╗███╗   ██╗
+# ████╗ ████║██╔══██╗██║████╗  ██║
+# ██╔████╔██║███████║██║██╔██╗ ██║
+# ██║╚██╔╝██║██╔══██║██║██║╚██╗██║
+# ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
+# ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
+#                                 
 def main():
     TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
     updater = Updater(TELEGRAM_TOKEN, use_context=True)
@@ -506,7 +634,7 @@ def main():
     dispatcher.add_handler(conv_handler)
 
     dispatcher.add_handler(CallbackQueryHandler(callback= leaveNow, pattern='^(LEAVE_)[0-9]{1,}$')) # 1st step to leave (only to leave early)
-    dispatcher.add_handler(CallbackQueryHandler(callback= leaveConfirm, pattern='^(EXITCONFIRM_)[0-9]{1,}$')) # confirm leave 
+    dispatcher.add_handler(CallbackQueryHandler(callback= leaveFinal, pattern='^(EXITCONFIRM_)[0-9]{1,}$')) # confirm leave 
 
     # logs all errors
     dispatcher.add_error_handler(error)
