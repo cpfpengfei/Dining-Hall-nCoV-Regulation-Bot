@@ -316,7 +316,7 @@ def send_final(update, context):
     logger.info(log_text)
 
     reply_text = "<b>Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!</b>\n\n" \
-                 "I will remind you again to indicate that you are leaving the dining hall!\n\n" + EAT + " Enjoy your meal! " + EAT
+                + "I will remind you again to indicate that you are leaving the dining hall!\n\n" + EAT + " Enjoy your meal! " + EAT \
                 + "\n\nPlease press the button below <b>only if you are currently leaving</b> the dining hall!"
 
     # encode leaving to specific user ID
