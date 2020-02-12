@@ -122,7 +122,7 @@ def start(update, context):
 
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
-    reply_text += "\nHey there! Thanks for using the bot! Do you wish to dine-in or takeaway?\n\n" 
+    reply_text += "\nHey there! Thanks for using the bot! Do you wish to dine-in or takeaway?\n\n" \
                     + BUTTON + "Press <i>Dine-In</i> to eat inside the dining hall (limit of 25 mins)\n\n" \
                     + BUTTON + "Press <i>Takeaway</i> to takeaway food with your own container (limit of 7 mins)\n\n" \
                     + BUTTON + "Press <i>Help/About</i> if you need further assistance :)" \
