@@ -59,7 +59,7 @@ RUN = u"\U0001F3C3\U0001F3FB"
 ###########################################
 
 # Set up states in the conversation
-(AFTER_START, AFTER_HELP, AFTER_ENTER, CONFIRM_ENTRY) = range(4) # CONFIRM_EXIT
+(AFTER_START, AFTER_HELP, CONFIRM_ENTRY) = range(4) # CONFIRM_EXIT
 
 ## INITIATE POSTGRESQL HERE
 db = Database()
@@ -98,12 +98,17 @@ def start(update, context):
 
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
-    reply_text += "\n<b>What do you wish to do next?</b>\n\n" + BUTTON + "Press <i>Enter Dining Hall</i> if you are now entering the dining hall!\n\n" \
-                  + BUTTON + "Press <i>Help/About</i> if you need further assistance :)"
+    reply_text += "\nHey there! Thanks for using the bot! Do you wish to dine-in or takeaway?\n\n" 
+                    + BUTTON + "Press <i>Dine-In</i> to eat inside the dining hall (limit of 25 mins)\n\n" \
+                    + BUTTON + "Press <i>Takeaway</i> to takeaway food with your own container (limit of 7 mins)\n\n" \
+                    + BUTTON + "Press <i>Help/About</i> if you need further assistance :)" \
 
-    button_list = [InlineKeyboardButton(text='Enter Dining Hall', callback_data='ENTER'),
+    button_list = [InlineKeyboardButton(text='Takeaway', callback_data='INTENT_0'),
+                   InlineKeyboardButton(text='Dine-In', callback_data='INTENT_1'),
                    InlineKeyboardButton(text='Help / About', callback_data='HELP')]
-    menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
+    menu = build_menu(button_list, n_cols=2, header_buttons=None, footer_buttons=None)
+
+    # create a jobqueue
     jobq = context.job_queue
 
     # split into 2 modes of entry for this state - can be command or callbackquery data
@@ -164,6 +169,8 @@ def start(update, context):
 
     return AFTER_START
 
+
+
 # command to get status only
 def status(update, context):
     user = update.message.from_user
@@ -206,30 +213,6 @@ def send_help(update, context):
     return AFTER_HELP
 
 
-# when user clicks "Enter Dining Hall"
-def enter_dh(update, context):
-    query = update.callback_query
-    user = query.from_user
-    chatid = query.message.chat_id
-
-    log_text = "User " + str(user.id) + " has indicated intention to enter DH. Might be a false positive."
-    logger.info(log_text)
-
-    reply_text = "Yumz, time for some good food!\n" + EAT + "Now, please select whether you would like to <b>takeaway</b> or <b>dine-in</b>?"
-    reply_text += "\n\nOr did you mis-press? You can press <i>Back</i> to go back!"
-
-    button_list = [InlineKeyboardButton(text='Takeaway', callback_data='INTENT_0'),
-                   InlineKeyboardButton(text='Dine-In', callback_data='INTENT_1'),
-                   InlineKeyboardButton(text='Back', callback_data='BACKTOSTART')]
-    menu = build_menu(button_list, n_cols=2, header_buttons=None, footer_buttons=None)
-
-    context.bot.editMessageText(text=reply_text,
-                                chat_id=chatid,
-                                message_id=query.message.message_id,
-                                reply_markup=InlineKeyboardMarkup(menu),
-                                parse_mode=ParseMode.HTML)
-    return AFTER_ENTER
-
 
 # To ask user to indicate if takeaway or in dining hall dining in
 def indicate_intention(update, context):
@@ -261,11 +244,11 @@ def indicate_intention(update, context):
             intention)
         logger.info(log_text)
 
-        reply_text = "Okay! Got it, you wish to {} in the Dining Hall now, can I confirm?".format(intention)
-        reply_text += "\n\nOr did you mis-press? You can cancel the whole process to go back to the start."
+        reply_text = "Yumz, time for some good food!\n\nYou wish to {} in the Dining Hall now, can I confirm?".format(intention)
+        reply_text += "\n\nOr did you accidentally press? Press <i>Back</i> to go back to the previous page!"
 
         button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data='CONFIRM_ENTRY'),
-                    InlineKeyboardButton(text='Cancel, please!', callback_data='CANCEL')]
+                    InlineKeyboardButton(text='Back', callback_data='CANCEL')]
         menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
         context.bot.editMessageText(text=reply_text,
@@ -287,11 +270,17 @@ def send_final(update, context):
 
     reply_text = "<b>Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!</b>\n\n" \
                  "I will remind you again to indicate that you are leaving the dining hall!\n\n" + EAT + " Enjoy your meal! " + EAT
+                + "\n\nPlease press the button below <b>only if you are currently leaving</b> the dining hall!"
 
-    reply_text += "\n\nNote: If you wish to leave now, you can send in the command - leavenow but with a slash infront."
+    # encode leaving to specific user ID
+    exitID = "LEAVE_" + str(user.id)
+    button_list = [InlineKeyboardButton(text='Leave Dining Hall', callback_data = exitID)]
+    menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
+
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
                                 message_id=query.message.message_id,
+                                reply_markup=InlineKeyboardMarkup(menu),
                                 parse_mode=ParseMode.HTML)  # no buttons for final text sent to the user
 
     indicatedIntention = context.chat_data['Intention']
@@ -313,14 +302,14 @@ def send_final(update, context):
 
     return
 
-# a command for user to leave early
+# changed to button to leave 
 def leaveNow(update, context):
     user = update.message.from_user
     chatid = update.message.chat_id
     reply_text = "<b>Are you sure you are leaving the Dining Hall now?</b>\n"
 
     # encode leaving to specific user ID
-    exitID = "EXIT_" + str(user.id)
+    exitID = "EXITCONFIRM_" + str(user.id)
 
     button_list = [InlineKeyboardButton(text='Yes, Leave Dining Hall', callback_data = exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
@@ -334,8 +323,9 @@ def leaveNow(update, context):
 def alarmEatin(context):
     job = context.job
     userID = job.context
+
     # encode leaving to specific user ID
-    exitID = "EXIT_" + str(userID)
+    exitID = "EXITCONFIRM_" + str(user.id)
 
     EATIN_MESSAGE = "<b>Hi, you have been eating in the Dining Hall for 25 minutes. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
 
@@ -358,7 +348,7 @@ def alarmTakeAway(context):
     job = context.job
     userID = job.context
     # encode leaving to specific user ID
-    exitID = "EXIT_" + str(userID)
+    exitID = "EXITCONFIRM_" + str(user.id)
 
     TAKEAWAY_MESSAGE = "<b>Hi, you have been in the Dining Hall for 7 minutes to take away food. Kindly leave now, thank you for your cooperation!</b> " + RUN + "\n"
 
@@ -378,7 +368,7 @@ def alarmTakeAway(context):
 
 
 # When user leaves dining hall
-def leave(update, context):
+def leaveConfirm(update, context):
     query = update.callback_query
     user = query.from_user
     chatid = query.message.chat_id
@@ -497,22 +487,15 @@ def main():
     # Individual command to get status text only
     dispatcher.add_handler(CommandHandler('status', status))
 
-    # Individual command to leave in advance
-    dispatcher.add_handler(CommandHandler('leavenow', leaveNow))
-
     # create conversational handler for different states and dispatch it
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
 
         states={
             AFTER_START: [CallbackQueryHandler(callback=send_help, pattern='^(HELP)$'),
-                          CallbackQueryHandler(callback=enter_dh, pattern='^(ENTER)$')],
+                          CallbackQueryHandler(callback=indicate_intention, pattern='^(INTENT_)[0-1]{1}$')], # intention either 0 or 1 for takeaway or dine in
 
             AFTER_HELP: [CallbackQueryHandler(callback=start, pattern='^(BACKTOSTART)$')],
-
-            AFTER_ENTER: [CallbackQueryHandler(callback=indicate_intention, pattern='^(INTENT_)[0-1]{1}$'),
-                          # intention either 0 or 1 for takeaway or dine in
-                          CallbackQueryHandler(callback=start, pattern='^(BACKTOSTART)$')],
 
             CONFIRM_ENTRY: [CallbackQueryHandler(callback=send_final, pattern='^(CONFIRM_ENTRY)$'),
                             CallbackQueryHandler(callback=start, pattern='^(CANCEL)$')]
@@ -522,7 +505,8 @@ def main():
     )
     dispatcher.add_handler(conv_handler)
 
-    dispatcher.add_handler(CallbackQueryHandler(callback= leave, pattern='^(EXIT_)[0-9]{1,}$')) # convert callback query handler out from convo
+    dispatcher.add_handler(CallbackQueryHandler(callback= leaveNow, pattern='^(LEAVE_)[0-9]{1,}$')) # 1st step to leave (only to leave early)
+    dispatcher.add_handler(CallbackQueryHandler(callback= leaveConfirm, pattern='^(EXITCONFIRM_)[0-9]{1,}$')) # confirm leave 
 
     # logs all errors
     dispatcher.add_error_handler(error)
