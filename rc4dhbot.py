@@ -47,13 +47,13 @@ BUTTON = u"\U0001F518"
 ROBOT = u"\U0001F916"
 QUEUE = u"\U0001F46B"
 EAT = u"\U0001F37D"
-BOWL = u"\U0001F372"
+BURGER = u"\U0001f354"
 HAPPY = u"\U0001F970"
 BOO = u"\U0001F92C"
 RUN = u"\U0001F3C3\U0001F3FB"
 LIGHTNING = u"\U000026A1"
 INFO = u"\U00002139"
-WARNING = u"\U000026a0"
+WARNING = u"\U0000203c"
 
 
 #  ██████╗ ██████╗ ███╗   ██╗██╗   ██╗ ██████╗     ███████╗████████╗ █████╗ ████████╗███████╗███████╗
@@ -92,7 +92,7 @@ def purge_db():
 HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 <b>Commands on this bot:</b>
-/start : To restart the bot
+/start : To start or restart the bot
 /status : Check the current status of DH only
 /foodtoday : Get the menu for DH today
 /foodtmr : Get the menu for DH tomorrow
@@ -100,7 +100,7 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 <b>Buttons and what they mean:</b>\n""" + \
             BUTTON + "<i>Enter:</i> Click this button only if you are about to enter the dining hall.\n" + \
             BUTTON + "<i>Leave:</i> Click this button if you are currently leaving the dining hall.\n" + \
-            BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20 mins!\n" + \
+            BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20-25 mins!\n" + \
             BUTTON + "<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall." + \
 "\n\n<b>Feedbacks / Wish to contribute?</b>" + \
 "\nContacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
@@ -119,13 +119,15 @@ def start(update, context):
     DINE_IN_COUNT, TAKEAWAY_COUNT = db.getCount()
     TOTAL_COUNT = int(DINE_IN_COUNT) + int(TAKEAWAY_COUNT)
 
+    timeNow = datetime.datetime.now()
     STATUS_TEXT = "<b>Current Status of DH:</b>\n"
     # check if overload > 50 people in DH
     if TOTAL_COUNT >= 1:
         STATUS_TEXT += WARNING + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
-    STATUS_TEXT += "\n" + BOWL + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "\n" + BURGER + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "<i>Accurate as of: {}</i>".format(timeNow.strftime("%d/%m/%Y %H:%M:%S"))
 
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
@@ -135,7 +137,7 @@ def start(update, context):
                     + BUTTON + "Press <i>Refresh</i> to get the latest crowd level!\n\n" \
                     + BUTTON + "Press <i>Help</i> if you need further assistance or to find more information :)" \
     
-    takeawayText = BOWL + " Takeaway"
+    takeawayText = BURGER + " Takeaway"
     dineInText = EAT + " Dine-In"
     helpText = INFO + " Help"
     refreshText = LIGHTNING + " Refresh"
@@ -215,13 +217,15 @@ def status(update, context):
     DINE_IN_COUNT, TAKEAWAY_COUNT = db.getCount()
     TOTAL_COUNT = int(DINE_IN_COUNT) + int(TAKEAWAY_COUNT)
 
+    timeNow = datetime.datetime.now()
     STATUS_TEXT = "<b>Current Status of DH:</b>\n"
     # check if overload > 50 people in DH
     if TOTAL_COUNT >= 1:
         STATUS_TEXT += WARNING + " <b>Crowd level is currently HIGH, please wait before coming to the dining hall.</b>\n\n"
     STATUS_TEXT += "Total number of people in Dining Hall: <b>{}</b>".format(str(TOTAL_COUNT))
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
-    STATUS_TEXT += "\n" + BOWL + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "\n" + BURGER + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
+    STATUS_TEXT += "<i>Accurate as of: {}</i>".format(timeNow.strftime("%d/%m/%Y %H:%M:%S"))
     
     context.bot.send_message(text=STATUS_TEXT,
                              chat_id=chatid,
@@ -343,19 +347,18 @@ def send_final(update, context):
     if (indicatedIntention == "TAKEAWAY"):
         # Add user to DB for takeaway
         db.addTakeAwayUser(str(user.id))
-        new_job = context.job_queue.run_once(alarmTakeAway, 10, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
+        new_job = context.job_queue.run_once(alarmTakeAway, 420, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Takeaway timer has started for {}".format(str(user.id)))
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
         db.addDineInUser(str(user.id))
-        new_job1 = context.job_queue.run_once(alarmEatIn25, 20, context=user.id) # 1500s = 25 mins
-        new_job2 = context.job_queue.run_once(alarmEatIn20, 10, context=user.id) # 1200s = 20 mins
+        new_job1 = context.job_queue.run_once(alarmEatIn25, 1500, context=user.id) # 1500s = 25 mins
+        new_job2 = context.job_queue.run_once(alarmEatIn20, 1200, context=user.id) # 1200s = 20 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Two dining in timers have started for {}".format(str(user.id)))
     else:
         logger.warning("Something went wrong with the intention...")
-
     return
 
 # changed to button to leave 
@@ -477,7 +480,7 @@ def leaveFinal(update, context):
     logger.info(log_text)
 
     reply_text = "<b>Thank you for leaving on time! Do remind your friends to do the same as well! </b>" + HAPPY
-
+    reply_text += "\n\nTo restart the bot, press /start! Press /status to check current crowd level. Press /foodtmr or /foodtoday to get daily menus!"
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
                                 message_id=query.message.message_id,
