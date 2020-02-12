@@ -358,9 +358,10 @@ def send_final(update, context):
 # ███████╗███████╗██║  ██║ ╚████╔╝ ███████╗
 # ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝
 #                                          
-def leaveNow(update, context):
-    user = update.message.from_user
-    chatid = update.message.chat_id
+def leaveEarly(update, context):
+    query = update.callback_query
+    user = query.from_user
+    chatid = query.message.chat_id
     reply_text = "<b>Are you sure you are leaving the Dining Hall now?</b>\n"
 
     # encode leaving to specific user ID
@@ -369,40 +370,14 @@ def leaveNow(update, context):
     button_list = [InlineKeyboardButton(text='Yes, Leave Dining Hall', callback_data = exitID)]
     menu = build_menu(button_list, n_cols=1, header_buttons=None, footer_buttons=None)
 
-    context.bot.send_message(chatid,
-                            text=reply_text,
+    context.bot.editMessageText(text=reply_text,
+                            chat_id=chatid,
+                            message_id=query.message.message_id,
                             reply_markup=InlineKeyboardMarkup(menu),
-                             parse_mode=ParseMode.HTML)
+                            parse_mode=ParseMode.HTML)  
     return
 
 
-# When user leaves dining hall
-def leaveFinal(update, context):
-    query = update.callback_query
-    user = query.from_user
-    chatid = query.message.chat_id
-
-    logger.info("Query data is: {}".format(str(query.data)))
-
-    # Remove user from DB
-    db.remove(str(user.id))
-    #INFOSTORE[str(user.id)].schedule_removal()
-    #del INFOSTORE[str(user.id)]
-
-    # Check Job Queue
-    #logger.info("Job Queue is: {}".format(context.job_queue.jobs()))
-
-    log_text = "User " + str(user.id) + " has now confirmed exit from DH."
-    logger.info(log_text)
-
-    reply_text = "<b>Thank you for leaving on time! Do remind your friends to do the same as well! </b>" + HAPPY
-
-    context.bot.editMessageText(text=reply_text,
-                                chat_id=chatid,
-                                message_id=query.message.message_id,
-                                parse_mode=ParseMode.HTML)
-
-    return ConversationHandler.END
 
 # ████████╗██╗███╗   ███╗███████╗██████╗ ███████╗
 # ╚══██╔══╝██║████╗ ████║██╔════╝██╔══██╗██╔════╝
@@ -475,7 +450,7 @@ def alarmTakeAway(context):
 
 
 # When user leaves dining hall
-def leaveConfirm(update, context):
+def leaveFinal(update, context):
     query = update.callback_query
     user = query.from_user
     chatid = query.message.chat_id
@@ -501,6 +476,7 @@ def leaveConfirm(update, context):
                                 parse_mode=ParseMode.HTML)
 
     return ConversationHandler.END
+
 
 
 # Feature 3: Reminder function to take temperature
@@ -633,7 +609,7 @@ def main():
     )
     dispatcher.add_handler(conv_handler)
 
-    dispatcher.add_handler(CallbackQueryHandler(callback= leaveNow, pattern='^(LEAVE_)[0-9]{1,}$')) # 1st step to leave (only to leave early)
+    dispatcher.add_handler(CallbackQueryHandler(callback= leaveEarly, pattern='^(LEAVE_)[0-9]{1,}$')) # 1st step to leave (only to leave early)
     dispatcher.add_handler(CallbackQueryHandler(callback= leaveFinal, pattern='^(EXITCONFIRM_)[0-9]{1,}$')) # confirm leave 
 
     # logs all errors
