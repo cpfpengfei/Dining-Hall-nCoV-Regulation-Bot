@@ -38,7 +38,7 @@ def error(update, context):
 # ██╔══╝  ██║╚██╔╝██║██║   ██║██   ██║██║
 # ███████╗██║ ╚═╝ ██║╚██████╔╝╚█████╔╝██║
 # ╚══════╝╚═╝     ╚═╝ ╚═════╝  ╚════╝ ╚═╝
-#                                        
+#
 WHALE = u"\U0001F40B"
 THERMOMETER = u"\U0001F321"
 FLEXED_BICEPS = u"\U0001F4AA\U0001F3FB"
@@ -62,18 +62,18 @@ FIRE = u"\U0001f525"
 # ██║     ██║   ██║██║╚██╗██║╚██╗ ██╔╝██║   ██║    ╚════██║   ██║   ██╔══██║   ██║   ██╔══╝  ╚════██║
 # ╚██████╗╚██████╔╝██║ ╚████║ ╚████╔╝ ╚██████╔╝    ███████║   ██║   ██║  ██║   ██║   ███████╗███████║
 #  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝  ╚═══╝   ╚═════╝     ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝
-#     
+#
 # Set up states in the conversation
 (AFTER_START, AFTER_HELP, CONFIRM_ENTRY) = range(3) # CONFIRM_EXIT
-                                                                                               
+
 
 # ██████╗  █████╗ ████████╗ █████╗ ██████╗  █████╗ ███████╗███████╗
 # ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝
-# ██║  ██║███████║   ██║   ███████║██████╔╝███████║███████╗█████╗  
-# ██║  ██║██╔══██║   ██║   ██╔══██║██╔══██╗██╔══██║╚════██║██╔══╝  
+# ██║  ██║███████║   ██║   ███████║██████╔╝███████║███████╗█████╗
+# ██║  ██║██╔══██║   ██║   ██╔══██║██╔══██╗██╔══██║╚════██║██╔══╝
 # ██████╔╝██║  ██║   ██║   ██║  ██║██████╔╝██║  ██║███████║███████╗
 # ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝
-#                                                                           
+#
 db = Database()
 
 def purge_db():
@@ -84,11 +84,11 @@ def purge_db():
 
 # ██╗  ██╗███████╗██╗     ██████╗     ████████╗███████╗██╗  ██╗████████╗
 # ██║  ██║██╔════╝██║     ██╔══██╗    ╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝
-# ███████║█████╗  ██║     ██████╔╝       ██║   █████╗   ╚███╔╝    ██║   
-# ██╔══██║██╔══╝  ██║     ██╔═══╝        ██║   ██╔══╝   ██╔██╗    ██║   
-# ██║  ██║███████╗███████╗██║            ██║   ███████╗██╔╝ ██╗   ██║   
-# ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝            ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝   
-#                                                                       
+# ███████║█████╗  ██║     ██████╔╝       ██║   █████╗   ╚███╔╝    ██║
+# ██╔══██║██╔══╝  ██║     ██╔═══╝        ██║   ██╔══╝   ██╔██╗    ██║
+# ██║  ██║███████╗███████╗██║            ██║   ███████╗██╔╝ ██╗   ██║
+# ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝            ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝
+#
 HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 
 <b>Commands on this bot:</b>
@@ -105,13 +105,22 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 "\n\n<b>Feedbacks / Wish to contribute?</b>" + \
 "\nContacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
 
+DINE_IN_OVERFLOW_MESSAGE = "Number of dine-in user has reached warning threshold"
+TAKEAWAY_OVERFLOW_MESSAGE = "Number of takeaway user has reached warning threshold"
+
+DINE_IN_OVERFLOW_RESOLVED_MESSAGE = "Number of dine-in user has dropped below warning threshold"
+TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE = "Number of takeaway user has dropped below warning threshold"
+
+def notify_admin(message, context):
+    context.bot.send_message(text = message, chat_id = os.environ['REPORT_GROUP_ID'], parse_mode = ParseMode.HTML)
+
 # ███████╗████████╗ █████╗ ██████╗ ████████╗
 # ██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝
-# ███████╗   ██║   ███████║██████╔╝   ██║   
-# ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   
-# ███████║   ██║   ██║  ██║██║  ██║   ██║   
-# ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
-#                                           
+# ███████╗   ██║   ███████║██████╔╝   ██║
+# ╚════██║   ██║   ██╔══██║██╔══██╗   ██║
+# ███████║   ██║   ██║  ██║██║  ██║   ██║
+# ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝
+#
 def start(update, context):
     reply_text = "Hello! You are currently being served by the RC4 Dining Hall Regulation Bot. " + ROBOT + "\n\n"
 
@@ -136,7 +145,7 @@ def start(update, context):
                     + BUTTON + "Press <i>Takeaway</i> to takeaway food with your own container (limit of 7 mins)\n\n" \
                     + BUTTON + "Press <i>Refresh</i> to get the latest crowd level!\n\n" \
                     + BUTTON + "Press <i>Help</i> if you need further assistance or to find more information :)" \
-    
+
     takeawayText = BURGER + " Takeaway"
     dineInText = EAT + " Dine-In"
     helpText = INFO + " Help"
@@ -185,7 +194,7 @@ def start(update, context):
             eveningReminder = jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid) # reminder at 530pm
             context.chat_data['eveningReminder'] = eveningReminder
 
-    except AttributeError:  # for backs and refreshes 
+    except AttributeError:  # for backs and refreshes
         query = update.callback_query
         user = query.from_user
         chatid = query.message.chat_id
@@ -208,7 +217,7 @@ def start(update, context):
 # ╚════██║   ██║   ██╔══██║   ██║   ██║   ██║╚════██║
 # ███████║   ██║   ██║  ██║   ██║   ╚██████╔╝███████║
 # ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝
-#                                                    
+#
 def status(update, context):
     user = update.message.from_user
     chatid = update.message.chat_id
@@ -226,20 +235,20 @@ def status(update, context):
     STATUS_TEXT += "\n" + EAT + " Dining In: <b>{}</b>".format(str(DINE_IN_COUNT))
     STATUS_TEXT += "\n" + BURGER + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
     STATUS_TEXT += "\n<i>Accurate as of: {}</i>".format(timeNow.strftime("%d/%m/%Y %H:%M:%S"))
-    
+
     context.bot.send_message(text=STATUS_TEXT,
                              chat_id=chatid,
                              parse_mode=ParseMode.HTML)
     return
 
 
-# ██╗  ██╗███████╗██╗     ██████╗ 
+# ██╗  ██╗███████╗██╗     ██████╗
 # ██║  ██║██╔════╝██║     ██╔══██╗
 # ███████║█████╗  ██║     ██████╔╝
-# ██╔══██║██╔══╝  ██║     ██╔═══╝ 
-# ██║  ██║███████╗███████╗██║     
-# ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     
-#                                 
+# ██╔══██║██╔══╝  ██║     ██╔═══╝
+# ██║  ██║███████╗███████╗██║
+# ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝
+#
 def send_help(update, context):
     query = update.callback_query
     user = query.from_user
@@ -268,7 +277,7 @@ def send_help(update, context):
 # ██║██║╚██╗██║   ██║   ██╔══╝  ██║╚██╗██║   ██║   ██║██║   ██║██║╚██╗██║
 # ██║██║ ╚████║   ██║   ███████╗██║ ╚████║   ██║   ██║╚██████╔╝██║ ╚████║
 # ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
-#                                                                        
+#
 def indicate_intention(update, context):
     query = update.callback_query
     user = query.from_user
@@ -314,11 +323,11 @@ def indicate_intention(update, context):
 
 #  ██████╗ ██████╗ ███╗   ██╗███████╗██╗██████╗ ███╗   ███╗    ███████╗███╗   ██╗████████╗██████╗ ██╗   ██╗
 # ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔══██╗████╗ ████║    ██╔════╝████╗  ██║╚══██╔══╝██╔══██╗╚██╗ ██╔╝
-# ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██████╔╝██╔████╔██║    █████╗  ██╔██╗ ██║   ██║   ██████╔╝ ╚████╔╝ 
-# ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██╔══██╗██║╚██╔╝██║    ██╔══╝  ██║╚██╗██║   ██║   ██╔══██╗  ╚██╔╝  
-# ╚██████╗╚██████╔╝██║ ╚████║██║     ██║██║  ██║██║ ╚═╝ ██║    ███████╗██║ ╚████║   ██║   ██║  ██║   ██║   
-#  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝    ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   
-#                                                                                                          
+# ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██████╔╝██╔████╔██║    █████╗  ██╔██╗ ██║   ██║   ██████╔╝ ╚████╔╝
+# ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██╔══██╗██║╚██╔╝██║    ██╔══╝  ██║╚██╗██║   ██║   ██╔══██╗  ╚██╔╝
+# ╚██████╗╚██████╔╝██║ ╚████║██║     ██║██║  ██║██║ ╚═╝ ██║    ███████╗██║ ╚████║   ██║   ██║  ██║   ██║
+#  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝    ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝
+#
 def send_final(update, context):
     query = update.callback_query
     user = query.from_user
@@ -346,13 +355,17 @@ def send_final(update, context):
     logger.info("Pulled intention is " + indicatedIntention)
     if (indicatedIntention == "TAKEAWAY"):
         # Add user to DB for takeaway
-        db.addTakeAwayUser(str(user.id))
+        res = db.addTakeAwayUser(str(user.id))
+        if res:
+            notify_admin(TAKEAWAY_OVERFLOW_MESSAGE, context)
         new_job = context.job_queue.run_once(alarmTakeAway, 420, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Takeaway timer has started for {}".format(str(user.id)))
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
-        db.addDineInUser(str(user.id))
+        res = db.addDineInUser(str(user.id))
+        if res:
+            notify_admin(DINE_IN_OVERFLOW_MESSAGE, context)
         new_job1 = context.job_queue.run_once(alarmEatIn25, 1500, context=user.id) # 1500s = 25 mins
         new_job2 = context.job_queue.run_once(alarmEatIn20, 1200, context=user.id) # 1200s = 20 mins
         #INFOSTORE[str(user.id)] = new_job
@@ -361,14 +374,14 @@ def send_final(update, context):
         logger.warning("Something went wrong with the intention...")
     return
 
-# changed to button to leave 
+# changed to button to leave
 # ██╗     ███████╗ █████╗ ██╗   ██╗███████╗
 # ██║     ██╔════╝██╔══██╗██║   ██║██╔════╝
-# ██║     █████╗  ███████║██║   ██║█████╗  
-# ██║     ██╔══╝  ██╔══██║╚██╗ ██╔╝██╔══╝  
+# ██║     █████╗  ███████║██║   ██║█████╗
+# ██║     ██╔══╝  ██╔══██║╚██╗ ██╔╝██╔══╝
 # ███████╗███████╗██║  ██║ ╚████╔╝ ███████╗
 # ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝
-#                                          
+#
 def leaveEarly(update, context):
     query = update.callback_query
     user = query.from_user
@@ -385,7 +398,7 @@ def leaveEarly(update, context):
                             chat_id=chatid,
                             message_id=query.message.message_id,
                             reply_markup=InlineKeyboardMarkup(menu),
-                            parse_mode=ParseMode.HTML)  
+                            parse_mode=ParseMode.HTML)
     return
 
 
@@ -396,7 +409,7 @@ def leaveEarly(update, context):
 #    ██║   ██║██║╚██╔╝██║██╔══╝  ██╔══██╗╚════██║
 #    ██║   ██║██║ ╚═╝ ██║███████╗██║  ██║███████║
 #    ╚═╝   ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝
-#                                                
+#
 def alarmEatIn25(context):
     job = context.job
     userID = job.context
@@ -418,7 +431,7 @@ def alarmEatIn25(context):
                                 parse_mode=ParseMode.HTML)
     else:     # if user has left early
         logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
-    return 
+    return
 
 def alarmEatIn20(context):
     job = context.job
@@ -435,7 +448,7 @@ def alarmEatIn20(context):
                                 parse_mode=ParseMode.HTML)
     else:     # if user has left early
         logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
-    return 
+    return
 
 def alarmTakeAway(context):
     job = context.job
@@ -457,7 +470,7 @@ def alarmTakeAway(context):
                                 parse_mode=ParseMode.HTML)
     else:     # if user has left early
         logger.info("User {} has already long left the DH! Nevertheless, this job has still be executed and no reminder message is sent to the user.".format(userID))
-    return 
+    return
 
 
 # When user leaves dining hall
@@ -469,7 +482,12 @@ def leaveFinal(update, context):
     logger.info("Query data is: {}".format(str(query.data)))
 
     # Remove user from DB
-    db.remove(str(user.id))
+    res = db.remove(str(user.id))
+
+    if (res == 1):
+        notify_admin(DINE_IN_OVERFLOW_RESOLVED_MESSAGE, context)
+    elif (res == 2):
+        notify_admin(TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE, context)
     #INFOSTORE[str(user.id)].schedule_removal()
     #del INFOSTORE[str(user.id)]
 
@@ -491,13 +509,13 @@ def leaveFinal(update, context):
 
 
 # Feature 3: Reminder function to take temperature
-# ██████╗ ███████╗███╗   ███╗██╗███╗   ██╗██████╗ ███████╗██████╗ 
+# ██████╗ ███████╗███╗   ███╗██╗███╗   ██╗██████╗ ███████╗██████╗
 # ██╔══██╗██╔════╝████╗ ████║██║████╗  ██║██╔══██╗██╔════╝██╔══██╗
 # ██████╔╝█████╗  ██╔████╔██║██║██╔██╗ ██║██║  ██║█████╗  ██████╔╝
 # ██╔══██╗██╔══╝  ██║╚██╔╝██║██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗
 # ██║  ██║███████╗██║ ╚═╝ ██║██║██║ ╚████║██████╔╝███████╗██║  ██║
 # ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝
-#                                                                 
+#
 def callback_reminder(context):
     REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
                     "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
@@ -516,8 +534,8 @@ def callback_reminder(context):
 # ██║  ██║███████║    ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
 # ██║  ██║██╔══██║    ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
 # ██████╔╝██║  ██║    ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
-# ╚═════╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
-#                                                           
+# ╚═════╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝
+#
 def foodtoday(update, context):
     user = update.message.from_user
     chatid = update.message.chat_id
@@ -542,13 +560,13 @@ def foodtmr(update, context):
     return
 
 
-#  ██████╗ █████╗ ███╗   ██╗ ██████╗███████╗██╗     
-# ██╔════╝██╔══██╗████╗  ██║██╔════╝██╔════╝██║     
-# ██║     ███████║██╔██╗ ██║██║     █████╗  ██║     
-# ██║     ██╔══██║██║╚██╗██║██║     ██╔══╝  ██║     
+#  ██████╗ █████╗ ███╗   ██╗ ██████╗███████╗██╗
+# ██╔════╝██╔══██╗████╗  ██║██╔════╝██╔════╝██║
+# ██║     ███████║██╔██╗ ██║██║     █████╗  ██║
+# ██║     ██╔══██║██║╚██╗██║██║     ██╔══╝  ██║
 # ╚██████╗██║  ██║██║ ╚████║╚██████╗███████╗███████╗
 #  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚══════╝╚══════╝
-#                                                   
+#
 def cancel(update, context):
     user = update.message.from_user
     chatid = update.message.chat_id
@@ -570,7 +588,7 @@ def cancel(update, context):
 # ██║╚██╔╝██║██╔══██║██║██║╚██╗██║
 # ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
 # ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
-#                                 
+#
 def main():
     TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
     updater = Updater(TELEGRAM_TOKEN, use_context=True)
@@ -609,7 +627,7 @@ def main():
         states={
             AFTER_START: [CallbackQueryHandler(callback=send_help, pattern='^(HELP)$'),
                           CallbackQueryHandler(callback=indicate_intention, pattern='^(INTENT_)[0-1]{1}$'), # intention either 0 or 1 for takeaway or dine in
-                          CallbackQueryHandler(callback=start, pattern='^(REFRESH)$')], 
+                          CallbackQueryHandler(callback=start, pattern='^(REFRESH)$')],
 
             AFTER_HELP: [CallbackQueryHandler(callback=start, pattern='^(BACKTOSTART)$')],
 
@@ -622,7 +640,7 @@ def main():
     dispatcher.add_handler(conv_handler)
 
     dispatcher.add_handler(CallbackQueryHandler(callback= leaveEarly, pattern='^(LEAVE_)[0-9]{1,}$')) # 1st step to leave (only to leave early)
-    dispatcher.add_handler(CallbackQueryHandler(callback= leaveFinal, pattern='^(EXITCONFIRM_)[0-9]{1,}$')) # confirm leave 
+    dispatcher.add_handler(CallbackQueryHandler(callback= leaveFinal, pattern='^(EXITCONFIRM_)[0-9]{1,}$')) # confirm leave
 
     # logs all errors
     dispatcher.add_error_handler(error)
