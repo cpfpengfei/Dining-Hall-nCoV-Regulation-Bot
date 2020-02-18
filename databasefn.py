@@ -26,7 +26,7 @@ class Database:
         query = "INSERT INTO t(id,timelimit,type) VALUES('{}',current_time + time '{}',1);".format(id, self.DINE_IN_TIME_LIMIT)
         self.cur.execute(query)
 
-        if (self.countDineInUser() == DINE_IN_WARN_AMOUNT):
+        if (self.countDineInUser() == self.DINE_IN_WARN_AMOUNT):
             return True
         else:
             return False
@@ -38,7 +38,7 @@ class Database:
         query = "INSERT INTO t(id,timelimit,type) VALUES('{}',current_time + time '{}',2);".format(id, self.TAKEAWAY_TIME_LIMIT)
         self.cur.execute(query)
 
-        if (self.countTakeAwayUser() == TAKEAWAY_WARN_AMOUNT):
+        if (self.countTakeAwayUser() == self.TAKEAWAY_WARN_AMOUNT):
             return True
         else:
             return False
@@ -51,9 +51,9 @@ class Database:
 
         new_amount = self.getCount()
 
-        if (old_amount[0] - new_amount[0] == 1):
+        if (old_amount[0] - new_amount[0] == 1 and self.countTakeAwayUser() == self.DINE_IN_WARN_AMOUNT):
             return 1
-        elif (old_amount[1] - new_amount[1] == 1):
+        elif (old_amount[1] - new_amount[1] == 1 and self.countTakeAwayUser() == self.TAKEAWAY_WARN_AMOUNT):
             return 2
         else:
             return 0
