@@ -366,6 +366,7 @@ def send_final(update, context):
         res = db.addDineInUser(str(user.id))
         if res:
             notify_admin(DINE_IN_OVERFLOW_MESSAGE, context)
+        logger.info("[overflow check] result from check is {}".format(res))
         new_job1 = context.job_queue.run_once(alarmEatIn25, 1500, context=user.id) # 1500s = 25 mins
         new_job2 = context.job_queue.run_once(alarmEatIn20, 1200, context=user.id) # 1200s = 20 mins
         #INFOSTORE[str(user.id)] = new_job
