@@ -5,8 +5,8 @@ class Database:
 
     TAKEAWAY_TIME_LIMIT = '00:07'
     DINE_IN_TIME_LIMIT = '00:25'
-    DINE_IN_WARN_AMOUNT = 1
-    TAKEAWAY_WARN_AMOUNT = 1
+    DINE_IN_WARN_AMOUNT = 45
+    TAKEAWAY_WARN_AMOUNT = 12
 
     def __init__(self):
         DATABASE_URL = os.environ['DATABASE_URL']
