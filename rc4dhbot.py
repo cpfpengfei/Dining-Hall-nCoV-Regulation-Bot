@@ -105,11 +105,11 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 "\n\n<b>Feedbacks / Wish to contribute?</b>" + \
 "\nContacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
 
-DINE_IN_OVERFLOW_MESSAGE = "Number of dine-in user has reached warning threshold"
-TAKEAWAY_OVERFLOW_MESSAGE = "Number of takeaway user has reached warning threshold"
+DINE_IN_OVERFLOW_MESSAGE = "Number of dine-in user has reached warning threshold (45)"
+TAKEAWAY_OVERFLOW_MESSAGE = "Number of takeaway user has reached warning threshold (12)"
 
-DINE_IN_OVERFLOW_RESOLVED_MESSAGE = "Number of dine-in user has dropped below warning threshold"
-TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE = "Number of takeaway user has dropped below warning threshold"
+DINE_IN_OVERFLOW_RESOLVED_MESSAGE = "Number of dine-in user has dropped below warning threshold (45)"
+TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE = "Number of takeaway user has dropped below warning threshold (12)"
 
 def notify_admin(message, context):
     context.bot.send_message(text = message, chat_id = os.environ['REPORT_GROUP_ID'], parse_mode = ParseMode.HTML)
