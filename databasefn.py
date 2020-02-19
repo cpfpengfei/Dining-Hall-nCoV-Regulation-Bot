@@ -51,7 +51,7 @@ class Database:
 
         new_amount = self.getCount()
 
-        if (old_amount[0] - new_amount[0] == 1 and self.countTakeAwayUser() == self.DINE_IN_WARN_AMOUNT - 1):
+        if (old_amount[0] - new_amount[0] == 1 and self.countDineInUser() == self.DINE_IN_WARN_AMOUNT - 1):
             return 1
         elif (old_amount[1] - new_amount[1] == 1 and self.countTakeAwayUser() == self.TAKEAWAY_WARN_AMOUNT - 1):
             return 2
