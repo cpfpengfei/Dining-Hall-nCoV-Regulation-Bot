@@ -172,7 +172,7 @@ def start(update, context):
             context.bot.send_message(text=warnText,
                                     chat_id=user.id,
                                     parse_mode=ParseMode.HTML)
-            return ConversationHandler.END # end convo if user pressed start but is in DH
+            return #ConversationHandler.END # end convo if user pressed start but is in DH
 
         else:
             # if new start, send a new message
@@ -290,7 +290,7 @@ def indicate_intention(update, context):
         context.bot.editMessageText(text=warnText,
                                     chat_id=user.id,
                                     parse_mode=ParseMode.HTML)
-        return ConversationHandler.END # end convo if user pressed start but is in DH
+        return #ConversationHandler.END # end convo if user pressed start but is in DH
 
     else:
         # get user intention from button pressed
@@ -504,7 +504,7 @@ def leaveFinal(update, context):
                                 message_id=query.message.message_id,
                                 parse_mode=ParseMode.HTML)
 
-    return ConversationHandler.END
+    return #ConversationHandler.END
 
 
 
