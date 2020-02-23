@@ -1,8 +1,9 @@
 """
 Ver 1.6
 """
+
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from sendMenu import getMenuURL
 from databasefn import Database
 from buildMenu import build_menu
