@@ -1,9 +1,8 @@
 """
 Ver 1.6
 """
-
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from sendMenu import getMenuURL
 from databasefn import Database
 from buildMenu import build_menu
@@ -519,9 +518,7 @@ def leaveFinal(update, context):
 def callback_reminder(context):
     REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
                     "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
-                    "For those who do not have thermometers, RAs will be stationed at the " \
-                    "<b>Level 1 Main Entrance</b> on Sunday to Saturday from:\n" + \
-                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA + \
+                    "For those who do not have thermometers, you can contact your level RA for help!\n\n" + CAMERA + \
                     "Remember to take a photo of your temperature readings!\n\n" + \
                     "Last but not least, please rest well and take care during this period!!" + \
                     FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
