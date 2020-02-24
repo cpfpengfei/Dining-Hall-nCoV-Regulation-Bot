@@ -2,7 +2,7 @@
 Ver 1.6
 """
 
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
 from sendMenu import getMenuURL
 from databasefn import Database
@@ -172,7 +172,7 @@ def start(update, context):
             context.bot.send_message(text=warnText,
                                     chat_id=user.id,
                                     parse_mode=ParseMode.HTML)
-            return #ConversationHandler.END # end convo if user pressed start but is in DH
+            return ConversationHandler.END # end convo if user pressed start but is in DH
 
         else:
             # if new start, send a new message
@@ -290,7 +290,7 @@ def indicate_intention(update, context):
         context.bot.editMessageText(text=warnText,
                                     chat_id=user.id,
                                     parse_mode=ParseMode.HTML)
-        return #ConversationHandler.END # end convo if user pressed start but is in DH
+        return ConversationHandler.END # end convo if user pressed start but is in DH
 
     else:
         # get user intention from button pressed
@@ -504,7 +504,7 @@ def leaveFinal(update, context):
                                 message_id=query.message.message_id,
                                 parse_mode=ParseMode.HTML)
 
-    return #ConversationHandler.END
+    return ConversationHandler.END
 
 
 
@@ -519,7 +519,9 @@ def leaveFinal(update, context):
 def callback_reminder(context):
     REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
                     "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
-                    "For those who do not have thermometers, you can contact your level RA for help!\n\n" + CAMERA + \
+                    "For those who do not have thermometers, RAs will be stationed at the " \
+                    "<b>Level 1 Main Entrance</b> on Sunday to Saturday from:\n" + \
+                    "1. 8am to 10am\n" + "2. 5.30pm to 7.30pm\n\n" + CAMERA + \
                     "Remember to take a photo of your temperature readings!\n\n" + \
                     "Last but not least, please rest well and take care during this period!!" + \
                     FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
