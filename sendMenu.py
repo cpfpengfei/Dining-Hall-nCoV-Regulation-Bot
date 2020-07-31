@@ -1,6 +1,8 @@
 # So far, UCI has only uploaded menus till Week 8 Sat Week-8-200307-Sat
 # Week 7 in UCI is actually Recess week.
 
+# The following code is no longer accurate due to changes in OHS menu URL
+
 import datetime
 from datetime import date
 

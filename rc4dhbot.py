@@ -1,10 +1,12 @@
 """
-Ver 1.6
+Ver 1.7
+Release for 20/21 Sem 1 RC4 week 1 
+
 """
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
-from sendMenu import getMenuURL
+# from sendMenu import getMenuURL
 from databasefn import Database
 from buildMenu import build_menu
 import os
@@ -94,16 +96,13 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
 <b>Commands on this bot:</b>
 /start : To start or restart the bot
 /status : Check the current status of DH only
-/foodtoday : Get the menu for DH today
-/foodtmr : Get the menu for DH tomorrow
 
 <b>Buttons and what they mean:</b>\n""" + \
             BUTTON + "<i>Enter:</i> Click this button only if you are about to enter the dining hall.\n" + \
             BUTTON + "<i>Leave:</i> Click this button if you are currently leaving the dining hall.\n" + \
             BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20-25 mins!\n" + \
             BUTTON + "<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall." + \
-"\n\n<b>Feedbacks / Wish to contribute?</b>" + \
-"\nContacts: @haveaqiupill, @PakornUe, @TeaR_RS, @Cpf05"
+"\n\n<b>Made with love by: OrcaTech (previously RC4SPACE)</b>" 
 
 DINE_IN_OVERFLOW_MESSAGE = "Number of dine-in user has reached warning threshold (45)"
 TAKEAWAY_OVERFLOW_MESSAGE = "Number of takeaway user has reached warning threshold (12)"
@@ -141,8 +140,8 @@ def start(update, context):
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
     reply_text += "\nHey there! Thanks for using the bot! Do you wish to dine-in or takeaway?\n\n" \
-                    + BUTTON + "Press <i>Dine-In</i> to eat inside the dining hall (limit of 25 mins)\n\n" \
-                    + BUTTON + "Press <i>Takeaway</i> to takeaway food with your own container (limit of 7 mins)\n\n" \
+                    + BUTTON + "Press <i>Dine-In</i> to eat inside the dining hall (be considerate of others who need seats to dine-in, finish your dinner soon and leave the DH!)\n\n" \
+                    + BUTTON + "Press <i>Takeaway</i> to takeaway food with your own container (leave the DH immediately after getting the food and don't enter the dine-in area)\n\n" \
                     + BUTTON + "Press <i>Refresh</i> to get the latest crowd level!\n\n" \
                     + BUTTON + "Press <i>Help</i> if you need further assistance or to find more information :)" \
 
@@ -181,18 +180,19 @@ def start(update, context):
                                     parse_mode=ParseMode.HTML,
                                     reply_markup=InlineKeyboardMarkup(menu))
 
+            # removed temperature taking reminder
             # job queue for reminders for temp takings; if job has been created, delete it first, then create new one again (following telegram API)
-            if 'morningReminder' in context.chat_data:
-                old_job = context.chat_data['morningReminder']
-                old_job.schedule_removal()
-            if 'eveningReminder' in context.chat_data:
-                old_job = context.chat_data['eveningReminder']
-                old_job.schedule_removal()
-
-            morningReminder = jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid) # reminder at 8am
-            context.chat_data['morningReminder'] = morningReminder
-            eveningReminder = jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid) # reminder at 530pm
-            context.chat_data['eveningReminder'] = eveningReminder
+            # if 'morningReminder' in context.chat_data:
+            #     old_job = context.chat_data['morningReminder']
+            #     old_job.schedule_removal()
+            # if 'eveningReminder' in context.chat_data:
+            #     old_job = context.chat_data['eveningReminder']
+            #     old_job.schedule_removal()
+             
+            # morningReminder = jobq.run_daily(callback_reminder, datetime.time(8, 00, 00), context=chatid) # reminder at 8am
+            # context.chat_data['morningReminder'] = morningReminder
+            # eveningReminder = jobq.run_daily(callback_reminder, datetime.time(17, 30, 00), context=chatid) # reminder at 530pm
+            # context.chat_data['eveningReminder'] = eveningReminder
 
     except AttributeError:  # for backs and refreshes
         query = update.callback_query
@@ -507,6 +507,7 @@ def leaveFinal(update, context):
     return ConversationHandler.END
 
 
+# removed temperature reminder 
 
 # Feature 3: Reminder function to take temperature
 # ██████╗ ███████╗███╗   ███╗██╗███╗   ██╗██████╗ ███████╗██████╗
@@ -516,15 +517,15 @@ def leaveFinal(update, context):
 # ██║  ██║███████╗██║ ╚═╝ ██║██║██║ ╚████║██████╔╝███████╗██║  ██║
 # ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝
 #
-def callback_reminder(context):
-    REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
-                    "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
-                    "For those who do not have thermometers, please look for your RAs.\n" \
-                    "Remember to take a photo of your temperature readings!\n\n" + \
-                    "Last but not least, please rest well and take care during this period!!" + \
-                    FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
+# def callback_reminder(context):
+#     REMINDER_TEXT = WHALE + "<b>DAILY TEMPERATURE TAKING</b>" + WHALE + \
+#                     "\n\nHello!! Please remember to log your temperature at https://myaces.nus.edu.sg/htd/.\n\n" + \
+#                     "For those who do not have thermometers, please look for your RAs.\n" \
+#                     "Remember to take a photo of your temperature readings!\n\n" + \
+#                     "Last but not least, please rest well and take care during this period!!" + \
+#                     FLEXED_BICEPS + FLEXED_BICEPS + FLEXED_BICEPS
 
-    context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
+#     context.bot.send_message(context.job.context, text=REMINDER_TEXT, parse_mode=ParseMode.HTML)
 
 
 # ██████╗ ██╗  ██╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
@@ -534,28 +535,32 @@ def callback_reminder(context):
 # ██████╔╝██║  ██║    ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
 # ╚═════╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝
 #
-def foodtoday(update, context):
-    user = update.message.from_user
-    chatid = update.message.chat_id
-    URL = getMenuURL(0)
-    reply_text = "<b>Here is the menu for Dining Hall food today:</b>\n\n"
-    reply_text += URL
-    context.bot.send_message(text=reply_text,
-                             chat_id=chatid,
-                             parse_mode=ParseMode.HTML)
-    return
 
 
-def foodtmr(update, context):
-    user = update.message.from_user
-    chatid = update.message.chat_id
-    URL = getMenuURL(1)
-    reply_text = "<b>Here is the menu for Dining Hall food tomorrow:</b>\n\n"
-    reply_text += URL
-    context.bot.send_message(text=reply_text,
-                             chat_id=chatid,
-                             parse_mode=ParseMode.HTML)
-    return
+# Removed menu 
+
+# def foodtoday(update, context):
+#     user = update.message.from_user
+#     chatid = update.message.chat_id
+#     URL = getMenuURL(0)
+#     reply_text = "<b>Here is the menu for Dining Hall food today:</b>\n\n"
+#     reply_text += URL
+#     context.bot.send_message(text=reply_text,
+#                              chat_id=chatid,
+#                              parse_mode=ParseMode.HTML)
+#     return
+
+
+# def foodtmr(update, context):
+#     user = update.message.from_user
+#     chatid = update.message.chat_id
+#     URL = getMenuURL(1)
+#     reply_text = "<b>Here is the menu for Dining Hall food tomorrow:</b>\n\n"
+#     reply_text += URL
+#     context.bot.send_message(text=reply_text,
+#                              chat_id=chatid,
+#                              parse_mode=ParseMode.HTML)
+#     return
 
 
 #  ██████╗ █████╗ ███╗   ██╗ ██████╗███████╗██╗
@@ -612,8 +617,8 @@ def main():
     continuous_thread.start()
 
     # commands for menu today and tomorrow
-    dispatcher.add_handler(CommandHandler('foodtoday', foodtoday))
-    dispatcher.add_handler(CommandHandler('foodtmr', foodtmr))
+    # dispatcher.add_handler(CommandHandler('foodtoday', foodtoday))
+    # dispatcher.add_handler(CommandHandler('foodtmr', foodtmr))
 
     # Individual command to get status text only
     dispatcher.add_handler(CommandHandler('status', status))
