@@ -498,7 +498,7 @@ def leaveFinal(update, context):
     logger.info(log_text)
 
     reply_text = "<b>Thank you for leaving on time! Do remind your friends to do the same as well! </b>" + HAPPY
-    reply_text += "\n\nTo restart the bot, press /start! Press /status to check current crowd level. Press /foodtmr or /foodtoday to get daily menus!"
+    reply_text += "\n\nTo restart the bot, press /start! Press /status to check current crowd level."
     context.bot.editMessageText(text=reply_text,
                                 chat_id=chatid,
                                 message_id=query.message.message_id,
