@@ -16,6 +16,8 @@ import schedule
 import time
 import threading
 
+from datetime import datetime
+
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
 # ██║     ██╔═══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝
@@ -110,6 +112,12 @@ TAKEAWAY_OVERFLOW_MESSAGE = "Number of takeaway user has reached warning thresho
 DINE_IN_OVERFLOW_RESOLVED_MESSAGE = "Number of dine-in user has dropped below warning threshold (45)"
 TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE = "Number of takeaway user has dropped below warning threshold (12)"
 
+DINE_IN_SCHEDULE_MESSAGE = "Please note that residents are only allowed to dine-in only during hours allocated to their zone.\n"
+
+DINE_IN_SCHEDULE_BREAKFAST = "Dine-in Schedule for breakfast is as follows:\n Zone A: 7:00 - 8:05 AM\nZone B: 8:15 - 9:00 AM\nZone C: 9:10 - 10:30 AM\n"
+
+DINE_IN_SCHEDULE_DINNER = "Dine-in Schedule for dinner is as follows:\n Zone A: 5:30 - 6:45 PM\nZone B: 6:55 - 7:50 PM\nZone C: 8:00 - 9:30 PM\n"
+
 def notify_admin(message, context):
     context.bot.send_message(text = message, chat_id = os.environ['REPORT_GROUP_ID'], parse_mode = ParseMode.HTML)
 
@@ -140,7 +148,8 @@ def start(update, context):
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
     reply_text += "\nHey there! Thanks for using the bot! Do you wish to dine-in or takeaway?\n\n" \
-                    + BUTTON + "Press <i>Dine-In</i> to eat inside the dining hall (be considerate of others who need seats to dine-in, finish your dinner soon and leave the DH!)\n\n" \
+                    + BUTTON + "Press <i>Dine-In</i> to eat inside the dining hall (be considerate of others who need seats to dine-in, finish your dinner soon and leave the DH!)\n" \
+                    + DINE_IN_SCHEDULE_MESSAGE + "\n" + DINE_IN_SCHEDULE_BREAKFAST + "\n" + DINE_IN_SCHEDULE_DINNER + "\n\n" \
                     + BUTTON + "Press <i>Takeaway</i> to takeaway food with your own container (leave the DH immediately after getting the food and don't enter the dine-in area)\n\n" \
                     + BUTTON + "Press <i>Refresh</i> to get the latest crowd level!\n\n" \
                     + BUTTON + "Press <i>Help</i> if you need further assistance or to find more information :)" \
@@ -306,8 +315,20 @@ def indicate_intention(update, context):
         log_text = "User " + str(user.id) + " has indicated to {}.".format(intention)
         logger.info(log_text)
 
-        reply_text = "Yumz, time for some good food!\n\n<b>You wish to {} in the Dining Hall now, can I confirm?</b>".format(intention)
-        reply_text += "\n\nOr did you accidentally press? Press <i>Back</i> to go back to the previous page!"
+
+
+        reply_text = "Yumz, time for some good food!\n\n<b>You wish to {} in the Dining Hall now, can I confirm?</b>\n".format(intention)
+
+        reply_text += DINE_IN_SCHEDULE_MESSAGE 
+
+        reply_text += "\n"
+
+        if (datetime.now().hour <= 12):
+            reply_text += DINE_IN_SCHEDULE_BREAKFAST
+        else:
+            reply_text += DINE_IN_SCHEDULE_DINNER
+
+        reply_text += "\n\nOr if now is not the time allocated to your zone or you have accidentally pressed, you can press <i>Back</i> to go back to the previous page!"
 
         button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data='CONFIRM_ENTRY'),
                     InlineKeyboardButton(text='Back', callback_data='CANCEL')]
