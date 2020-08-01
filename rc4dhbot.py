@@ -111,11 +111,11 @@ TAKEAWAY_OVERFLOW_MESSAGE = "Number of takeaway user has reached warning thresho
 DINE_IN_OVERFLOW_RESOLVED_MESSAGE = "Number of dine-in user has dropped below warning threshold (45)"
 TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE = "Number of takeaway user has dropped below warning threshold (12)"
 
-DINE_IN_SCHEDULE_MESSAGE = "Please note that residents are only allowed to dine-in only during hours allocated to their zone.\n"
+DINE_IN_SCHEDULE_MESSAGE = "\nPlease note that residents are only allowed to dine-in only during hours allocated to their zone.\n"
 
-DINE_IN_SCHEDULE_BREAKFAST = "Dine-in Schedule for breakfast is as follows:\n Zone A: 7:00 - 8:05 AM\nZone B: 8:15 - 9:00 AM\nZone C: 9:10 - 10:30 AM\n"
+DINE_IN_SCHEDULE_BREAKFAST = "<b>Dine-in Schedule for breakfast is as follows:</b>\nZone A: 7:00 - 8:05 AM\nZone B: 8:15 - 9:00 AM\nZone C: 9:10 - 10:30 AM\n"
 
-DINE_IN_SCHEDULE_DINNER = "Dine-in Schedule for dinner is as follows:\n Zone A: 5:30 - 6:45 PM\nZone B: 6:55 - 7:50 PM\nZone C: 8:00 - 9:30 PM\n"
+DINE_IN_SCHEDULE_DINNER = "<b>Dine-in Schedule for dinner is as follows:</b>\nZone A: 5:30 - 6:45 PM\nZone B: 6:55 - 7:50 PM\nZone C: 8:00 - 9:30 PM\n"
 
 def notify_admin(message, context):
     context.bot.send_message(text = message, chat_id = os.environ['REPORT_GROUP_ID'], parse_mode = ParseMode.HTML)
@@ -327,7 +327,7 @@ def indicate_intention(update, context):
         else:
             reply_text += DINE_IN_SCHEDULE_DINNER
 
-        reply_text += "\n\nOr if now is not the time allocated to your zone or you have accidentally pressed, you can press <i>Back</i> to go back to the previous page!"
+        reply_text += "\nOr if now is not the time allocated to your zone or you have accidentally pressed, you can press <i>Back</i> to go back to the previous page!"
 
         button_list = [InlineKeyboardButton(text='Yes, I confirm.', callback_data='CONFIRM_ENTRY'),
                     InlineKeyboardButton(text='Back', callback_data='CANCEL')]
