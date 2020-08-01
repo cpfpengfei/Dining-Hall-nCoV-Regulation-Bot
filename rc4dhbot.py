@@ -16,7 +16,6 @@ import schedule
 import time
 import threading
 
-from datetime import datetime
 
 
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
@@ -323,7 +322,7 @@ def indicate_intention(update, context):
 
         reply_text += "\n"
 
-        if (datetime.now().hour <= 12):
+        if (datetime.datetime.now().hour <= 12):
             reply_text += DINE_IN_SCHEDULE_BREAKFAST
         else:
             reply_text += DINE_IN_SCHEDULE_DINNER
