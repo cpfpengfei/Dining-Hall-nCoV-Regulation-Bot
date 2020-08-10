@@ -103,10 +103,10 @@ HELP_TEXT = """\n<b>DINING HALL CROWD REGULATION</b>
             BUTTON + "<i>Leave:</i> Click this button if you are currently leaving the dining hall.\n" + \
             BUTTON + "<i>Dine In:</i> To indicate if you are eating inside the dining hall. Do try to finish your food within 20-25 mins!\n" + \
             BUTTON + "<i>Takeaway:</i> To indicate that you are taking away food and not staying to eat inside the dining hall." + \
-"\n\n<b>Made with love by: OrcaTech (previously RC4SPACE)</b>" 
+"\n\n<b>Made with love by OrcaTech, RC4's Idea Hub (previously RC4SPACE)</b>" 
 
-DINE_IN_OVERFLOW_MESSAGE = "Number of dine-in user has reached warning threshold (45)"
-TAKEAWAY_OVERFLOW_MESSAGE = "Number of takeaway user has reached warning threshold (12)"
+# DINE_IN_OVERFLOW_MESSAGE = "Number of dine-in user has reached warning threshold (45)"
+# TAKEAWAY_OVERFLOW_MESSAGE = "Number of takeaway user has reached warning threshold (12)"
 
 DINE_IN_OVERFLOW_RESOLVED_MESSAGE = "Number of dine-in user has dropped below warning threshold (45)"
 TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE = "Number of takeaway user has dropped below warning threshold (12)"
@@ -119,8 +119,9 @@ DINE_IN_SCHEDULE_DINNER = ["<b>Dine-in Schedule for dinner is as follows:</b>\nZ
 
 
 
-def notify_admin(message, context):
-    context.bot.send_message(text = message, chat_id = os.environ['REPORT_GROUP_ID'], parse_mode = ParseMode.HTML)
+# def notify_admin(message, context):
+#     context.bot.send_message(text = message, chat_id = os.environ['REPORT_GROUP_ID'], parse_mode = ParseMode.HTML)
+
 
 # ███████╗████████╗ █████╗ ██████╗ ████████╗
 # ██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝
@@ -318,8 +319,6 @@ def indicate_intention(update, context):
         log_text = "User " + str(user.id) + " has indicated to {}.".format(intention)
         logger.info(log_text)
 
-
-
         reply_text = "Yumz, time for some good food!\n\n<b>You wish to {} in the Dining Hall now, can I confirm?</b>\n".format(intention)
 
         reply_text += DINE_IN_SCHEDULE_MESSAGE 
@@ -361,7 +360,7 @@ def send_final(update, context):
     logger.info(log_text)
 
     reply_text = "<b>Okay, thank you for indicating on this bot! Do remind your friends to do the same as well!</b>\n\n" \
-                + "I have also set up timers to remind you when the time limit is up!\n\n" + EAT + " Enjoy your meal! " + EAT \
+                + "I have also set up timers to remind you when the time limit is up!\n\n" + EAT + " Have a great meal & stay safe! - With ❤️, by OrcaTech, RC4's Idea Hub" \
                 + "\n\nPlease press the button below <b>only if you are currently leaving</b> the dining hall:"
 
     # encode leaving to specific user ID
@@ -380,16 +379,16 @@ def send_final(update, context):
     if (indicatedIntention == "TAKEAWAY"):
         # Add user to DB for takeaway
         res = db.addTakeAwayUser(str(user.id))
-        if res:
-            notify_admin(TAKEAWAY_OVERFLOW_MESSAGE, context)
+        # if res:
+        #     notify_admin(TAKEAWAY_OVERFLOW_MESSAGE, context)
         new_job = context.job_queue.run_once(alarmTakeAway, 420, context=user.id) # changed context to userID so as to be not usable in groups; 420 for 7 mins
         #INFOSTORE[str(user.id)] = new_job
         logger.info("Takeaway timer has started for {}".format(str(user.id)))
     elif (indicatedIntention == "DINE-IN"):
         # Add user to DB for dine-in
         res = db.addDineInUser(str(user.id))
-        if res:
-            notify_admin(DINE_IN_OVERFLOW_MESSAGE, context)
+        # if res:
+        #     notify_admin(DINE_IN_OVERFLOW_MESSAGE, context)
         new_job1 = context.job_queue.run_once(alarmEatIn25, 1500, context=user.id) # 1500s = 25 mins
         new_job2 = context.job_queue.run_once(alarmEatIn20, 1200, context=user.id) # 1200s = 20 mins
         #INFOSTORE[str(user.id)] = new_job
@@ -508,10 +507,10 @@ def leaveFinal(update, context):
     # Remove user from DB
     res = db.remove(str(user.id))
 
-    if (res == 1):
-        notify_admin(DINE_IN_OVERFLOW_RESOLVED_MESSAGE, context)
-    elif (res == 2):
-        notify_admin(TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE, context)
+    # if (res == 1):
+    #     notify_admin(DINE_IN_OVERFLOW_RESOLVED_MESSAGE, context)
+    # elif (res == 2):
+    #     notify_admin(TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE, context)
     #INFOSTORE[str(user.id)].schedule_removal()
     #del INFOSTORE[str(user.id)]
 
