@@ -325,6 +325,8 @@ def indicate_intention(update, context):
 
         reply_text += "\n"
 
+        schedule_index = (datetime.datetime.now().date().isocalendar()[1] - 32) % 3
+
         if (datetime.datetime.now().hour <= 12):
             reply_text += DINE_IN_SCHEDULE_BREAKFAST[schedule_index]
         else:
