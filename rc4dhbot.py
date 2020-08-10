@@ -113,9 +113,11 @@ TAKEAWAY_OVERFLOW_RESOLVED_MESSAGE = "Number of takeaway user has dropped below 
 
 DINE_IN_SCHEDULE_MESSAGE = "\nPlease note that residents are only allowed to dine-in only during hours allocated to their zone.\n"
 
-DINE_IN_SCHEDULE_BREAKFAST = "<b>Dine-in Schedule for breakfast is as follows:</b>\nZone A: 7:00 - 8:05 AM\nZone B: 8:15 - 9:00 AM\nZone C: 9:10 - 10:30 AM\n"
+DINE_IN_SCHEDULE_BREAKFAST = ["<b>Dine-in Schedule for breakfast is as follows:</b>\nZone A: 7:00 - 8:05 AM\nZone B: 8:15 - 9:00 AM\nZone C: 9:10 - 10:30 AM\n", "<b>Dine-in Schedule for breakfast is as follows:</b>\nZone A: 8:30 - 9:35 AM\nZone B: 9:45 - 10:30 AM\nZone C: 7:00 - 8:20 AM\n", "<b>Dine-in Schedule for breakfast is as follows:</b>\nZone A: 9:25 - 10:30 AM\nZone B: 7:00 - 7:45 AM\nZone C: 7:55 - 9:15 AM\n"]
 
-DINE_IN_SCHEDULE_DINNER = "<b>Dine-in Schedule for dinner is as follows:</b>\nZone A: 5:30 - 6:45 PM\nZone B: 6:55 - 7:50 PM\nZone C: 8:00 - 9:30 PM\n"
+DINE_IN_SCHEDULE_DINNER = ["<b>Dine-in Schedule for dinner is as follows:</b>\nZone A: 5:30 - 6:45 PM\nZone B: 6:55 - 7:50 PM\nZone C: 8:00 - 9:30 PM\n", "<b>Dine-in Schedule for dinner is as follows:</b>\nZone A: 7:10 - 8:25 PM\nZone B: 8:35 - 9:30 PM\nZone C: 5:30 - 7:00 PM\n", "<b>Dine-in Schedule for dinner is as follows:</b>\nZone A: 8:15 - 9:30 PM\nZone B: 5:30 - 6:25 PM\nZone C: 6:35 - 8:05 PM\n"]
+
+
 
 def notify_admin(message, context):
     context.bot.send_message(text = message, chat_id = os.environ['REPORT_GROUP_ID'], parse_mode = ParseMode.HTML)
@@ -144,11 +146,13 @@ def start(update, context):
     STATUS_TEXT += "\n" + BURGER + " Taking Away: <b>{}</b>".format(str(TAKEAWAY_COUNT))
     STATUS_TEXT += "\n<i>Accurate as of: {}</i>".format(timeNow.strftime("%d/%m/%Y %H:%M:%S"))
 
+    schedule_index = (datetime.datetime.now().date().isocalendar()[1] - 32) % 3
+
     reply_text += STATUS_TEXT
     reply_text += "\n\n**************************************\n"
     reply_text += "\nHey there! Thanks for using the bot! Do you wish to dine-in or takeaway?\n\n" \
                     + BUTTON + "Press <i>Dine-In</i> to eat inside the dining hall (be considerate of others who need seats to dine-in, finish your dinner soon and leave the DH!)\n" \
-                    + DINE_IN_SCHEDULE_MESSAGE + "\n" + DINE_IN_SCHEDULE_BREAKFAST + "\n" + DINE_IN_SCHEDULE_DINNER + "\n\n" \
+                    + DINE_IN_SCHEDULE_MESSAGE + "\n" + DINE_IN_SCHEDULE_BREAKFAST[schedule_index] + "\n" + DINE_IN_SCHEDULE_DINNER[schedule_index] + "\n\n" \
                     + BUTTON + "Press <i>Takeaway</i> to takeaway food with your own container (leave the DH immediately after getting the food and don't enter the dine-in area)\n\n" \
                     + BUTTON + "Press <i>Refresh</i> to get the latest crowd level!\n\n" \
                     + BUTTON + "Press <i>Help</i> if you need further assistance or to find more information :)" \
@@ -323,9 +327,9 @@ def indicate_intention(update, context):
         reply_text += "\n"
 
         if (datetime.datetime.now().hour <= 12):
-            reply_text += DINE_IN_SCHEDULE_BREAKFAST
+            reply_text += DINE_IN_SCHEDULE_BREAKFAST[schedule_index]
         else:
-            reply_text += DINE_IN_SCHEDULE_DINNER
+            reply_text += DINE_IN_SCHEDULE_DINNER[schedule_index]
 
         reply_text += "\nOr if now is not the time allocated to your zone or you have accidentally pressed, you can press <i>Back</i> to go back to the previous page!"
 
